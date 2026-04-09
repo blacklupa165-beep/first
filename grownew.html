@@ -1,0 +1,1694 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GrowLab — Dein Cannabis Konfigurator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#06040a;--ink2:#0c0810;--ink3:#140c18;
+  --s:rgba(255,255,255,.036);--s2:rgba(255,255,255,.065);
+  --b:rgba(255,255,255,.08);--b2:rgba(255,255,255,.15);
+  --r:#ff1a3a;--r2:#ff4466;--rd:rgba(255,26,58,.14);--rg:rgba(255,26,58,.32);
+  --g:#ffd700;--g2:#ffaa00;--gd:rgba(255,215,0,.13);--gg:rgba(255,215,0,.32);
+  --tl:#00ffcc;--tld:rgba(0,255,204,.12);
+  --t:#ece8f2;--t2:#9080aa;--t3:#48385a;--t4:#251838;
+  --fh:'Barlow Condensed',Impact,sans-serif;
+  --fb:'Barlow',system-ui,sans-serif;
+  --fm:'JetBrains Mono',monospace;
+  --nav:62px;--max:1260px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--ink);color:var(--t);font-family:var(--fb);-webkit-font-smoothing:antialiased;overflow-x:hidden;cursor:none}
+a{color:inherit;text-decoration:none}button{font-family:var(--fb);cursor:none}
+img{display:block;max-width:100%}ul,ol{list-style:none}
+::selection{background:var(--r);color:#fff}
+:focus-visible{outline:2px solid var(--g);outline-offset:3px;border-radius:3px}
+:focus:not(:focus-visible){outline:none}
+/* ── Cursor ── */
+#cur{position:fixed;width:16px;height:16px;border:2px solid var(--r);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .12s,height .12s,background .12s,border-color .12s;box-shadow:0 0 8px var(--rg);mix-blend-mode:difference}
+#cdot{position:fixed;width:4px;height:4px;background:var(--g);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
+#cur.h{width:34px;height:34px;background:rgba(255,26,58,.12);border-color:var(--g);box-shadow:0 0 20px var(--gg)}
+body *{cursor:none}
+/* ── Canvas ── */
+#bgc{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.55}
+#tc{position:fixed;inset:0;pointer-events:none;z-index:1}
+/* ── Skip ── */
+.skip{position:fixed;top:-100%;left:1rem;z-index:9999;background:var(--r);color:#fff;padding:.7rem 1.2rem;border-radius:6px;font-weight:700;transition:top .2s}
+.skip:focus{top:1rem}
+/* ── Layout ── */
+.wrap{max-width:var(--max);margin:0 auto;padding:0 1.5rem;position:relative;z-index:2}
+.page{display:none;min-height:calc(100vh - var(--nav));animation:fadeUp .35s ease both;position:relative;z-index:2}
+.page.on{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shimmer{0%{background-position:-400% center}100%{background-position:400% center}}
+@keyframes pulse{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:1;transform:scale(1.2)}}
+@keyframes neon{0%,100%,97%{opacity:1}93%{opacity:.75}95%{opacity:.92}}
+@keyframes sdwn{from{opacity:0;max-height:0}to{opacity:1;max-height:4000px}}
+/* ── NAV ── */
+.nav{position:fixed;top:0;left:0;right:0;height:var(--nav);z-index:500;background:rgba(6,4,10,.9);backdrop-filter:blur(22px);border-bottom:1px solid rgba(255,26,58,.18);box-shadow:0 0 40px rgba(255,26,58,.08)}
+.nav-in{max-width:var(--max);margin:0 auto;padding:0 1.5rem;height:100%;display:flex;align-items:center;gap:1.5rem}
+.logo{display:flex;align-items:center;gap:.65rem;flex-shrink:0}
+.logo-ico{width:32px;height:32px;background:linear-gradient(135deg,var(--r),var(--g2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;box-shadow:0 0 20px var(--rg),0 0 40px rgba(255,26,58,.15)}
+.logo-nm{font-family:var(--fh);font-size:1.4rem;font-weight:900;letter-spacing:.06em;line-height:1}
+.logo-nm em{color:var(--g);font-style:normal;text-shadow:0 0 15px var(--gg);animation:neon 8s ease infinite}
+.nav-links{display:flex;align-items:center;gap:.1rem;margin-left:auto}
+.nl{display:flex;align-items:center;gap:.35rem;padding:.42rem .88rem;border-radius:6px;font-size:.83rem;font-weight:500;color:var(--t2);background:none;border:none;transition:all .18s;white-space:nowrap;text-decoration:none}
+.nl:hover,.nl.on{color:var(--g);background:rgba(255,215,0,.07)}
+.nl.on{color:var(--r);text-shadow:0 0 8px var(--rg)}
+.lsw{display:flex;gap:.2rem;margin-left:.75rem;padding-left:.75rem;border-left:1px solid var(--b)}
+.lb{padding:.28rem .58rem;border-radius:4px;font-family:var(--fm);font-size:.68rem;background:none;border:1px solid var(--b);color:var(--t3);transition:all .18s}
+.lb.on,.lb:hover{border-color:rgba(255,215,0,.4);color:var(--g);background:var(--gd)}
+.ntog{display:none;background:none;border:1px solid var(--b);color:var(--t);font-size:1.2rem;padding:.38rem .55rem;border-radius:6px;margin-left:auto;line-height:1}
+/* ── HERO ── */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:calc(var(--nav)+3rem) 1.5rem 4rem;overflow:hidden}
+.hero-c{position:relative;z-index:2;max-width:900px}
+.hkick{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--fm);font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--g);background:var(--gd);border:1px solid rgba(255,215,0,.28);border-radius:99px;padding:.38rem 1.1rem;margin-bottom:1.75rem}
+.hkick::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--r);box-shadow:0 0 10px var(--r);animation:pulse 2s ease infinite}
+.htitle{font-family:var(--fh);font-size:clamp(4.5rem,16vw,11rem);font-weight:900;line-height:.88;letter-spacing:.02em;margin-bottom:1.5rem}
+.ht1{display:block;color:var(--t)}
+.ht2{display:block;background:linear-gradient(135deg,var(--r) 0%,var(--r2) 30%,var(--g) 65%,var(--g2) 100%);background-size:300% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 6s linear infinite;filter:drop-shadow(0 0 18px rgba(255,26,58,.4))}
+.hsub{font-size:clamp(1rem,2vw,1.2rem);color:var(--t2);max-width:540px;margin:0 auto 2.5rem;line-height:1.7}
+.hcta{display:flex;gap:.85rem;justify-content:center;flex-wrap:wrap;margin-bottom:3.5rem}
+.hstats{display:flex;gap:2.5rem;justify-content:center;flex-wrap:wrap;padding-top:2.5rem;border-top:1px solid rgba(255,26,58,.18)}
+.hst{text-align:center}
+.hst-n{font-family:var(--fh);font-size:2.8rem;font-weight:900;color:var(--r);text-shadow:0 0 20px var(--rg),0 0 60px rgba(255,26,58,.2);line-height:1;margin-bottom:.2rem;animation:neon 10s ease infinite}
+.hst-l{font-family:var(--fm);font-size:.63rem;letter-spacing:.12em;text-transform:uppercase;color:var(--t3)}
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;gap:.45rem;padding:.8rem 1.8rem;border-radius:6px;font-size:.95rem;font-weight:700;font-family:var(--fb);border:none;transition:transform .18s,box-shadow .18s;white-space:nowrap;line-height:1}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:translateY(0)}
+.btn-r{background:linear-gradient(135deg,var(--r),#c0001c);color:#fff;box-shadow:0 4px 20px var(--rg)}
+.btn-r:hover{box-shadow:0 8px 36px rgba(255,26,58,.55)}
+.btn-g{background:linear-gradient(135deg,var(--g),var(--g2));color:#1a0a00;font-weight:800;box-shadow:0 4px 18px var(--gg)}
+.btn-g:hover{box-shadow:0 8px 32px rgba(255,215,0,.5)}
+.btn-ol{background:none;border:1.5px solid rgba(255,215,0,.3);color:var(--g)}
+.btn-ol:hover{border-color:var(--g);background:var(--gd)}
+.btn-sm{padding:.48rem 1.1rem;font-size:.82rem}
+/* ── Pill ── */
+.pill{display:inline-flex;align-items:center;font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:.26rem .72rem;border-radius:99px;border:1.5px solid;white-space:nowrap;line-height:1}
+.pill-sm{font-size:.62rem;padding:.18rem .58rem}
+/* ── Page header ── */
+.pgh{padding:calc(var(--nav)+2.5rem) 0 2rem;position:relative}
+.pgh::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--r),var(--g),transparent)}
+.pgeye{font-family:var(--fm);font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:var(--g);margin-bottom:.6rem;display:flex;align-items:center;gap:.45rem}
+.pgeye::before{content:'';width:20px;height:1.5px;background:linear-gradient(90deg,var(--r),var(--g))}
+.pgtitle{font-family:var(--fh);font-size:clamp(2.5rem,6vw,4rem);font-weight:900;letter-spacing:.04em;line-height:.95;margin-bottom:.75rem}
+.pgtitle .a{color:var(--r);text-shadow:0 0 12px var(--rg);animation:neon 7s ease infinite}
+.pgdesc{font-size:1rem;color:var(--t2);max-width:560px;line-height:1.7}
+/* ── Card ── */
+.card{background:var(--s);border:1.5px solid var(--b);border-radius:20px;overflow:hidden;transition:transform .2s,box-shadow .2s,border-color .2s,background .2s}
+.card:hover{transform:translateY(-4px);background:var(--s2);box-shadow:0 14px 44px rgba(0,0,0,.5)}
+/* ── Search ── */
+.sw{position:relative;margin-bottom:1.5rem}
+.si{width:100%;padding:.9rem 3rem .9rem 3rem;background:rgba(255,255,255,.04);border:1.5px solid var(--b);border-radius:12px;color:var(--t);font-size:1rem;font-family:var(--fb);transition:border-color .2s,box-shadow .2s}
+.si:focus{border-color:rgba(255,215,0,.5);box-shadow:0 0 20px rgba(255,215,0,.12);outline:none}
+.si::placeholder{color:var(--t3)}
+.sico{position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:var(--t3);pointer-events:none}
+.sx{position:absolute;right:1rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--t3);display:none;font-size:.95rem;transition:color .2s}
+.sx.v{display:block}
+.sx:hover{color:var(--r)}
+.rbar{font-family:var(--fm);font-size:.75rem;color:var(--t3);margin-bottom:1.25rem}
+.rbar strong{color:var(--g)}
+/* ── Filters ── */
+.filters{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1.4rem}
+.fc{display:inline-flex;align-items:center;gap:.3rem;padding:.4rem .9rem;border-radius:99px;background:rgba(255,255,255,.04);border:1.5px solid var(--b);color:var(--t2);font-size:.78rem;font-weight:500;transition:all .18s;white-space:nowrap}
+.fc:hover{border-color:rgba(255,215,0,.3);color:var(--g)}
+.fc.on{background:var(--gd);border-color:rgba(255,215,0,.45);color:var(--g)}
+.fcnt{font-size:.62rem;background:rgba(255,255,255,.1);border-radius:99px;padding:.08rem .4rem}
+.fc.on .fcnt{background:rgba(255,215,0,.2)}
+/* ══════════════════════════════════
+   CONFIGURATOR
+══════════════════════════════════ */
+.cfg-layout{display:grid;grid-template-columns:310px 1fr;gap:1.75rem;align-items:start;padding:2rem 0 4rem}
+.cfg-side{position:sticky;top:calc(var(--nav)+1.5rem);display:flex;flex-direction:column;gap:1.1rem}
+.cfp{background:var(--s);border:1.5px solid var(--b);border-radius:18px;overflow:hidden;transition:border-color .2s}
+.cfp.active{border-color:rgba(255,215,0,.3);box-shadow:0 0 30px rgba(255,215,0,.07)}
+.cfp-head{padding:1rem 1.35rem;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:.7rem;background:rgba(255,255,255,.02)}
+.cfp-ico{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0}
+.cfp-title{font-family:var(--fh);font-size:1.05rem;font-weight:700;letter-spacing:.05em;line-height:1}
+.cfp-sub{font-size:.72rem;color:var(--t3);margin-top:.12rem}
+.cfp-body{padding:1rem 1.35rem;display:flex;flex-direction:column;gap:.65rem}
+/* Option grid */
+.opts{display:grid;gap:.45rem}
+.opts.c2{grid-template-columns:1fr 1fr}
+.opts.c3{grid-template-columns:1fr 1fr 1fr}
+.opt{display:flex;flex-direction:column;align-items:center;gap:.28rem;padding:.7rem .45rem;border-radius:10px;background:rgba(255,255,255,.03);border:1.5px solid var(--b);transition:all .18s;text-align:center}
+.opt:hover{border-color:rgba(255,215,0,.35);background:rgba(255,215,0,.05)}
+.opt.sel{background:rgba(255,215,0,.1);border-color:rgba(255,215,0,.55);box-shadow:0 0 18px rgba(255,215,0,.14)}
+.opt-ico{font-size:1.4rem;line-height:1}
+.opt-nm{font-size:.72rem;font-weight:700;color:var(--t2);line-height:1.2}
+.opt.sel .opt-nm{color:var(--g)}
+.opt-sb{font-family:var(--fm);font-size:.58rem;color:var(--t3);line-height:1.3}
+.opt.sel .opt-sb{color:rgba(255,215,0,.7)}
+/* Sliders */
+.rng-wrap{display:flex;flex-direction:column;gap:.42rem}
+.rng-row{display:flex;justify-content:space-between;align-items:center}
+.rng-lbl{font-size:.82rem;color:var(--t2);font-weight:500}
+.rng-val{font-family:var(--fm);font-size:.82rem;color:var(--g);font-weight:700;min-width:50px;text-align:right}
+input[type=range]{-webkit-appearance:none;width:100%;height:5px;border-radius:3px;background:linear-gradient(90deg,var(--r),var(--g) var(--pct,50%),rgba(255,255,255,.1) var(--pct,50%));outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--g);box-shadow:0 0 10px var(--gg);transition:transform .15s}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.3)}
+/* Select */
+.csel{width:100%;padding:.62rem .9rem;background:rgba(255,255,255,.05);border:1.5px solid var(--b);border-radius:6px;color:var(--t);font-family:var(--fb);font-size:.88rem;transition:border-color .2s;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23ffd700' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .8rem center;background-color:rgba(255,255,255,.05)}
+.csel:focus{border-color:rgba(255,215,0,.5);outline:none}
+.csel option{background:#160e20;color:var(--t)}
+/* Yield preview */
+.yprev{background:linear-gradient(135deg,rgba(255,26,58,.08),rgba(255,215,0,.08));border:1px solid rgba(255,215,0,.22);border-radius:14px;padding:1rem 1.2rem;text-align:center}
+.yn{font-family:var(--fh);font-size:2.2rem;font-weight:900;letter-spacing:.05em;color:var(--g);text-shadow:0 0 20px var(--gg);line-height:1;margin-bottom:.18rem}
+.yl{font-family:var(--fm);font-size:.63rem;letter-spacing:.15em;text-transform:uppercase;color:var(--t3)}
+.yn2{font-size:.72rem;color:var(--t3);margin-top:.35rem}
+/* Plan output */
+.plan{background:var(--ink2);border:1.5px solid var(--b);border-radius:22px;overflow:hidden}
+.plan-hero{padding:2.5rem;border-bottom:1px solid var(--b);position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(255,26,58,.05),rgba(255,215,0,.04))}
+.plan-grid-bg{position:absolute;inset:0;opacity:.04;background-image:linear-gradient(rgba(255,26,58,.2) 1px,transparent 1px),linear-gradient(90deg,rgba(255,215,0,.2) 1px,transparent 1px);background-size:40px 40px}
+.plan-nm{font-family:var(--fh);font-size:clamp(2rem,5vw,3.5rem);font-weight:900;letter-spacing:.04em;line-height:.95;position:relative;background:linear-gradient(135deg,var(--r),var(--g));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 14px rgba(255,26,58,.35))}
+.plan-badges{display:flex;gap:.5rem;flex-wrap:wrap;margin:.85rem 0 1.25rem;position:relative}
+.plan-stats{display:flex;gap:.7rem;flex-wrap:wrap;position:relative}
+.pstat{background:rgba(0,0,0,.4);border:1px solid var(--b);border-radius:6px;padding:.6rem .95rem}
+.pstat-l{font-family:var(--fm);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:.16rem}
+.pstat-v{font-size:1rem;font-weight:700}
+.plan-desc{font-size:.84rem;color:var(--t2);line-height:1.7;margin-top:.65rem;position:relative}
+.plan-terp{font-size:.78rem;color:var(--t3);font-style:italic;margin-top:.4rem;position:relative}
+/* Setup bar */
+.setup-bar{background:rgba(255,215,0,.05);border:1px solid rgba(255,215,0,.18);border-radius:12px;padding:.9rem 1.4rem;margin:1.5rem 2.5rem;display:flex;gap:1.2rem;flex-wrap:wrap;align-items:center}
+.si-item{display:flex;align-items:center;gap:.4rem;font-size:.8rem}
+.si-ico{font-size:.95rem}
+.si-l{color:var(--t3);font-size:.72rem}
+.si-v{color:var(--g);font-weight:700}
+/* Temp block */
+.tb{margin:1.5rem 2.5rem;background:linear-gradient(135deg,rgba(255,26,58,.06),rgba(255,215,0,.04));border:1px solid rgba(255,26,58,.2);border-radius:12px;padding:1.2rem 1.5rem}
+.tb-hd{font-family:var(--fm);font-size:.67rem;letter-spacing:.18em;text-transform:uppercase;color:var(--r);margin-bottom:.85rem;display:flex;align-items:center;gap:.4rem}
+.tb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(138px,1fr));gap:.5rem}
+.tb-cell{background:rgba(0,0,0,.3);border-radius:6px;padding:.58rem .82rem;border:1px solid rgba(255,255,255,.04)}
+.tb-ph{font-size:.67rem;color:var(--t3);margin-bottom:.2rem}
+.tb-val{font-size:.84rem;font-weight:700}
+/* Weeks */
+.wks-wrap{padding:1.5rem 2.5rem 2.5rem}
+.wks-lbl{font-family:var(--fm);font-size:.63rem;letter-spacing:.2em;text-transform:uppercase;color:var(--t3);margin-bottom:1rem;display:flex;align-items:center;gap:.4rem}
+.wks-lbl::before{content:'';width:16px;height:1px;background:linear-gradient(90deg,var(--r),var(--g))}
+.wk-list{display:flex;flex-direction:column;gap:.5rem}
+.wk{border-radius:12px;overflow:hidden;border:1.5px solid var(--b);transition:border-color .2s}
+.wk.open{border-color:rgba(255,26,58,.35);box-shadow:0 0 18px rgba(255,26,58,.07)}
+.wk-btn{width:100%;display:flex;align-items:center;gap:.8rem;padding:.9rem 1.2rem;background:rgba(255,255,255,.02);border:none;color:var(--t);text-align:left;transition:background .18s}
+.wk-btn:hover{background:rgba(255,255,255,.04)}
+.wnum{min-width:50px;height:50px;border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;gap:1px}
+.wi{font-size:1.1rem;line-height:1}
+.wt{font-family:var(--fm);font-size:.6rem;font-weight:500;line-height:1}
+.winfo{flex:1;min-width:0}
+.wph{font-family:var(--fh);font-size:1.05rem;font-weight:700;letter-spacing:.05em;margin-bottom:.32rem;line-height:1.1}
+.wtags{display:flex;gap:.28rem;flex-wrap:wrap;margin-bottom:.32rem}
+.wenv{display:flex;gap:.75rem;flex-wrap:wrap;font-size:.74rem;color:var(--t3)}
+.wenv span strong{color:var(--t2);font-weight:600}
+.wnc{text-align:right;flex-shrink:0}
+.wnci{font-family:var(--fh);font-size:1.35rem;font-weight:700;color:var(--r);text-shadow:0 0 10px var(--rg);line-height:1}
+.wncl{font-family:var(--fm);font-size:.57rem;letter-spacing:.1em;text-transform:uppercase;color:var(--t3)}
+.wchev{color:var(--t4);font-size:.9rem;transition:transform .18s;flex-shrink:0}
+.wk.open .wchev{transform:rotate(180deg)}
+.wbody{display:none;padding:1.2rem;border-top:1px solid var(--b);animation:sdwn .3s ease}
+.wk.open .wbody{display:block}
+.tip-c{border-left:4px solid;background:rgba(255,26,58,.06);border:1px solid rgba(255,26,58,.18);border-left:4px solid var(--r);border-radius:0 7px 7px 0;padding:.9rem 1.1rem;margin-bottom:1.2rem;font-size:.88rem;line-height:1.7;color:var(--t2)}
+.tip-l{font-family:var(--fm);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--r);margin-bottom:.4rem}
+.nut-l{font-family:var(--fm);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--t3);margin-bottom:.9rem}
+.nrow{margin-bottom:.68rem}
+.nrow-h{display:flex;justify-content:space-between;font-size:.83rem;margin-bottom:.28rem}
+.nnm{color:var(--t2);font-weight:500}
+.nval{font-weight:700}
+.nt{height:8px;background:rgba(0,0,0,.4);border-radius:99px;overflow:hidden}
+.nf{height:100%;border-radius:99px;transition:width .55s ease}
+/* Post harvest */
+.phwrap{border-left:5px solid var(--g);border:1.5px solid rgba(255,215,0,.25);background:rgba(255,215,0,.04);border-radius:12px;padding:1.65rem;margin-top:1.5rem}
+.ph-title{font-family:var(--fh);font-size:1.35rem;font-weight:900;color:var(--g);margin-bottom:1.1rem;text-shadow:0 0 14px var(--gg)}
+.ph-steps{display:flex;flex-direction:column;gap:.9rem}
+.ph-step{display:flex;gap:.85rem;align-items:flex-start}
+.ph-ico{width:40px;height:40px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.ph-t{font-size:.88rem;font-weight:700;margin-bottom:.16rem}
+.ph-d{font-size:.8rem;color:var(--t2);line-height:1.6}
+/* ══ STRAIN CARDS ══ */
+.sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:1rem}
+.sc{background:var(--s);border:1.5px solid var(--b);border-radius:18px;overflow:hidden;transition:transform .2s,box-shadow .2s,border-color .2s,background .2s;position:relative}
+.sc:hover{transform:translateY(-4px);background:var(--s2);box-shadow:0 12px 44px rgba(0,0,0,.5)}
+.sc-bar{height:3px}
+.sc-head{padding:1.15rem 1.3rem .9rem}
+.sc-tr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem}
+.sc-nm{font-family:var(--fh);font-size:1.4rem;font-weight:900;letter-spacing:.04em;line-height:1.1;margin-bottom:.18rem}
+.sc-br{font-size:.73rem;color:var(--t3);margin-bottom:.85rem}
+.sc-sts{display:grid;grid-template-columns:repeat(3,1fr);gap:.38rem}
+.sc-s{background:rgba(0,0,0,.3);border-radius:6px;padding:.42rem .52rem}
+.sc-sl{font-family:var(--fm);font-size:.56rem;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);margin-bottom:.1rem}
+.sc-sv{font-size:.83rem;font-weight:700}
+.sc-ft{padding:.72rem 1.3rem;border-top:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+.sc-tp{font-size:.7rem;color:var(--t3);font-style:italic;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sc-go{font-size:.7rem;font-weight:700;white-space:nowrap}
+/* ══ SHOPS ══ */
+.rtabs{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1.25rem;padding-bottom:1.25rem;border-bottom:1px solid var(--b)}
+.rtab{display:flex;align-items:center;gap:.3rem;padding:.42rem .88rem;border-radius:99px;background:rgba(255,255,255,.03);border:1.5px solid var(--b);color:var(--t2);font-size:.77rem;font-weight:500;transition:all .18s;white-space:nowrap}
+.rtab:hover{color:var(--t);border-color:var(--b2)}
+.rtab.on{background:rgba(255,215,0,.1);border-color:rgba(255,215,0,.4);color:var(--g)}
+.shgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1rem}
+.sh{background:var(--s);border:1.5px solid var(--b);border-radius:18px;padding:1.2rem 1.35rem;display:flex;flex-direction:column;gap:.58rem;transition:transform .2s,box-shadow .2s}
+.sh:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.sh-top{display:flex;justify-content:space-between;align-items:flex-start;gap:.7rem}
+.sh-nm{font-family:var(--fh);font-size:1.1rem;font-weight:700;letter-spacing:.04em;line-height:1.2}
+.sh-ct{font-size:.72rem;color:var(--t3);margin-top:.12rem}
+.sh-wb{padding:.38rem .78rem;border-radius:6px;font-size:.72rem;font-weight:700;border:none;transition:opacity .18s;text-decoration:none;display:inline-flex;align-items:center;gap:.3rem;flex-shrink:0}
+.sh-wb:hover{opacity:.78}
+.sh-desc{font-size:.78rem;line-height:1.6;padding:.58rem .82rem;border-radius:6px}
+.sh-tags{display:flex;gap:.28rem;flex-wrap:wrap}
+.sh-tag{font-size:.64rem;padding:.18rem .52rem;border-radius:4px;background:rgba(255,255,255,.04);border:1px solid var(--b);color:var(--t3)}
+.sh-on{font-size:.64rem;font-weight:700;padding:.2rem .58px;border-radius:4px;background:rgba(0,255,204,.1);border:1px solid rgba(0,255,204,.3);color:var(--tl)}
+/* ══ SEEDBANKS ══ */
+.tbar{display:flex;gap:.35rem;border-bottom:1.5px solid var(--b);margin-bottom:1.75rem}
+.tbtn{padding:.78rem 1.2rem;background:none;border:none;border-bottom:2.5px solid transparent;color:var(--t2);font-size:.88rem;font-weight:600;font-family:var(--fb);transition:all .18s;margin-bottom:-1.5px}
+.tbtn.on{color:var(--g);border-bottom-color:var(--r)}
+.tpanel{display:none}
+.tpanel.on{display:block}
+.sbgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(325px,1fr));gap:1.1rem}
+.sbc{background:var(--s);border:1.5px solid var(--b);border-radius:18px;padding:1.45rem;display:flex;flex-direction:column;gap:.85rem;transition:transform .2s}
+.sbc:hover{transform:translateY(-3px)}
+.sbc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:.7rem}
+.sb-nm{font-family:var(--fh);font-size:1.3rem;font-weight:900;letter-spacing:.04em;line-height:1.1}
+.sb-mt{font-size:.74rem;color:var(--t3);margin-top:.12rem}
+.sb-lnk{padding:.46rem .86rem;border-radius:6px;font-size:.73rem;font-weight:700;border:none;transition:opacity .18s;text-decoration:none;flex-shrink:0;display:inline-flex;align-items:center;gap:.28rem}
+.sb-lnk:hover{opacity:.8}
+.sb-desc{font-size:.84rem;color:var(--t2);line-height:1.65}
+.sb-sts{display:flex;gap:.32rem;flex-wrap:wrap}
+.sb-st{font-size:.7rem;padding:.18rem .6px;border-radius:4px;background:rgba(255,255,255,.04);border:1px solid var(--b);color:var(--t3)}
+.sb-st.hl{font-weight:700}
+.sb-info{display:grid;grid-template-columns:1fr 1fr;gap:.58rem}
+.sb-ic{border-radius:6px;padding:.7rem .82rem}
+.sb-icl{font-family:var(--fm);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.26rem}
+.sb-icv{font-size:.82rem;color:var(--t2);line-height:1.5}
+.oslist{display:flex;flex-direction:column;gap:.65rem}
+.osc{display:flex;align-items:center;gap:1rem;background:var(--s);border:1.5px solid var(--b);border-radius:12px;padding:1rem 1.3rem;transition:transform .2s}
+.osc:hover{transform:translateY(-2px)}
+.osc-m{flex:1}
+.osc-nm{font-size:.97rem;font-weight:700;margin-bottom:.2rem}
+.osc-ld{font-size:.72rem;color:var(--t3);margin-bottom:.28rem}
+.osc-d{font-size:.8rem;color:var(--t2);line-height:1.55}
+.osc-btn{padding:.5rem .9rem;border-radius:6px;font-size:.73rem;font-weight:700;border:none;transition:opacity .18s;text-decoration:none;flex-shrink:0;display:inline-flex;align-items:center;gap:.28rem}
+.osc-btn:hover{opacity:.8}
+/* ══ TECHNIQUES ══ */
+.tlist{display:flex;flex-direction:column;gap:.85rem;padding-bottom:3rem}
+.ti{border-radius:18px;overflow:hidden;border:1.5px solid var(--b);background:var(--s);transition:border-color .2s}
+.ti.open{border-color:rgba(255,26,58,.28)}
+.ti-btn{width:100%;display:flex;align-items:center;gap:1rem;padding:1.3rem 1.65rem;background:none;border:none;color:var(--t);text-align:left;transition:background .18s}
+.ti-btn:hover{background:rgba(255,255,255,.02)}
+.ti-ico{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
+.ti-main{flex:1}
+.ti-nm{font-family:var(--fh);font-size:1.2rem;font-weight:700;letter-spacing:.05em;line-height:1;margin-bottom:.16rem}
+.ti-sb{font-size:.8rem;color:var(--t3);margin-bottom:.5rem}
+.ti-chev{color:var(--t4);font-size:.9rem;transition:transform .18s;flex-shrink:0}
+.ti.open .ti-chev{transform:rotate(180deg)}
+.ti-body{display:none;padding:0 1.65rem 1.65rem;border-top:1px solid var(--b);animation:sdwn .3s ease}
+.ti.open .ti-body{display:block}
+.ti-img{width:100%;height:185px;object-fit:cover;border-radius:12px;margin:1.15rem 0;background:rgba(255,255,255,.03)}
+.ti-step{display:flex;gap:.68rem;align-items:flex-start;margin-bottom:.58rem}
+.snum{min-width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.76rem;font-weight:700;flex-shrink:0}
+.ti-step p{font-size:.87rem;color:var(--t2);line-height:1.62;padding-top:.16rem}
+.ti-tip{font-size:.87rem;color:var(--t3);border-left:3px solid;padding:.68rem 1rem;border-radius:0 6px 6px 0;margin-bottom:1rem;line-height:1.65}
+.ytbtn{display:flex;align-items:center;justify-content:center;gap:.52rem;padding:.88rem;border-radius:7px;background:linear-gradient(135deg,#c00,#7a0000);color:#fff;font-size:.88rem;font-weight:700;border:none;width:100%;transition:opacity .18s,transform .18s;text-decoration:none}
+.ytbtn:hover{opacity:.85;transform:translateY(-1px)}
+/* ══ COMMUNITY CHAT ══ */
+.chat-fab{position:fixed;bottom:2rem;right:2rem;z-index:600;display:flex;flex-direction:column;align-items:flex-end;gap:.75rem}
+.chat-opn{width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--r),var(--g2));border:none;display:flex;align-items:center;justify-content:center;font-size:1.45rem;box-shadow:0 0 30px var(--rg),0 0 60px rgba(255,26,58,.2);transition:transform .2s}
+.chat-opn:hover{transform:scale(1.1)}
+.chat-notif{position:absolute;top:-3px;right:-3px;width:18px;height:18px;background:var(--g);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:.65rem;font-weight:700;color:#1a0a00;border:2px solid var(--ink)}
+.chat-win{width:355px;height:495px;background:var(--ink3);border:1.5px solid rgba(255,26,58,.28);border-radius:22px;overflow:hidden;display:none;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 40px rgba(255,26,58,.12)}
+.chat-win.open{display:flex;animation:fadeUp .3s ease}
+.chat-hd{padding:.88rem 1.2rem;background:linear-gradient(135deg,rgba(255,26,58,.14),rgba(255,215,0,.07));border-bottom:1px solid rgba(255,26,58,.18);display:flex;align-items:center;gap:.72rem}
+.chat-hd-ico{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--r),var(--g2));display:flex;align-items:center;justify-content:center;font-size:1rem;box-shadow:0 0 14px var(--rg);flex-shrink:0}
+.chat-hd-info{flex:1}
+.chat-hd-title{font-family:var(--fh);font-size:1.05rem;font-weight:700;letter-spacing:.04em;line-height:1}
+.chat-online{font-family:var(--fm);font-size:.62rem;color:var(--tl);display:flex;align-items:center;gap:.35rem;margin-top:.12rem}
+.chat-online::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--tl);box-shadow:0 0 6px var(--tl);animation:pulse 2s ease infinite}
+.chat-cls{background:none;border:none;color:var(--t3);font-size:1.1rem;padding:.2rem;transition:color .18s}
+.chat-cls:hover{color:var(--r)}
+.chat-msgs{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.62rem;scrollbar-width:thin;scrollbar-color:var(--t4) transparent}
+.chat-msgs::-webkit-scrollbar{width:4px}
+.chat-msgs::-webkit-scrollbar-thumb{background:var(--t4);border-radius:2px}
+.msg{display:flex;flex-direction:column;gap:.18rem;animation:fadeUp .25s ease}
+.msg-hd{display:flex;align-items:baseline;gap:.42rem}
+.msg-usr{font-family:var(--fm);font-size:.7rem;font-weight:700}
+.msg-tm{font-family:var(--fm);font-size:.58rem;color:var(--t3)}
+.msg-bub{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.06);border-radius:0 12px 12px 12px;padding:.62rem .82rem;font-size:.84rem;color:var(--t2);line-height:1.55;max-width:85%;word-break:break-word}
+.msg.own{align-items:flex-end}
+.msg.own .msg-bub{background:rgba(255,26,58,.12);border-color:rgba(255,26,58,.2);border-radius:12px 0 12px 12px;color:var(--t)}
+.msg.own .msg-usr{color:var(--r)}
+.msg.sys .msg-bub{background:rgba(255,215,0,.07);border-color:rgba(255,215,0,.14);color:rgba(255,215,0,.8);font-size:.77rem;font-style:italic;margin:0 auto;max-width:100%;text-align:center;border-radius:12px}
+.msg.sys .msg-hd{justify-content:center}
+.chat-typ{font-family:var(--fm);font-size:.68rem;color:var(--t3);padding:.22rem .82rem .58rem;min-height:1.4rem;display:flex;align-items:center;gap:.38rem}
+.tdot{width:5px;height:5px;border-radius:50%;background:var(--t3);animation:pulse 1.2s ease infinite}
+.tdot:nth-child(2){animation-delay:.2s}
+.tdot:nth-child(3){animation-delay:.4s}
+.chat-inp-row{padding:.72rem .88rem;border-top:1px solid rgba(255,26,58,.14);display:flex;gap:.58rem;align-items:center;background:rgba(255,255,255,.02)}
+#cinput{flex:1;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,26,58,.2);border-radius:12px;padding:.58rem .88rem;color:var(--t);font-size:.88rem;font-family:var(--fb);transition:border-color .2s;min-width:0;resize:none;height:36px;line-height:1.4;overflow:hidden}
+#cinput:focus{border-color:var(--r);outline:none;box-shadow:0 0 12px rgba(255,26,58,.18)}
+#cinput::placeholder{color:var(--t3)}
+.csend{width:36px;height:36px;border-radius:7px;background:linear-gradient(135deg,var(--r),var(--g2));border:none;display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#fff;flex-shrink:0;transition:transform .18s,box-shadow .18s;box-shadow:0 0 12px var(--rg)}
+.csend:hover{transform:scale(1.08);box-shadow:0 0 20px var(--rg)}
+.cemoji-row{padding:.42rem .88rem 0;display:flex;gap:.32rem}
+.cem{background:none;border:1px solid var(--b);border-radius:6px;padding:.18rem .42rem;font-size:.9rem;transition:all .18s}
+.cem:hover{background:rgba(255,255,255,.08);transform:scale(1.15)}
+.cname-modal{position:absolute;inset:0;background:rgba(6,4,10,.92);display:flex;align-items:center;justify-content:center;z-index:10;border-radius:22px}
+.cname-box{background:var(--ink3);border:1.5px solid rgba(255,215,0,.28);border-radius:18px;padding:1.75rem;width:270px;text-align:center}
+.cname-title{font-family:var(--fh);font-size:1.2rem;font-weight:700;color:var(--g);margin-bottom:.4rem;letter-spacing:.05em}
+.cname-sub{font-size:.82rem;color:var(--t3);margin-bottom:1rem;line-height:1.5}
+#cname{width:100%;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,215,0,.28);border-radius:6px;padding:.62rem 1rem;color:var(--t);font-size:.95rem;font-family:var(--fb);margin-bottom:.82rem;transition:border-color .2s}
+#cname:focus{border-color:var(--g);outline:none}
+#cname::placeholder{color:var(--t3)}
+/* ══ FOOTER ══ */
+.footer{border-top:1px solid rgba(255,26,58,.18);background:var(--ink2);padding:3rem 0 2rem;margin-top:4rem;position:relative;z-index:2}
+.footer::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:60%;height:1px;background:linear-gradient(90deg,transparent,var(--r),var(--g),transparent)}
+.fgrid{display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr;gap:2.5rem;margin-bottom:2.5rem}
+.f-bnm{font-family:var(--fh);font-size:1.4rem;font-weight:900;letter-spacing:.08em;margin:.5rem 0}
+.f-bnm em{color:var(--r);font-style:normal;text-shadow:0 0 12px var(--rg)}
+.f-desc{font-size:.82rem;color:var(--t3);line-height:1.65;max-width:260px}
+.f-legal{font-size:.72rem;color:var(--t4);line-height:1.65;margin-top:.65rem}
+.f-ct{font-family:var(--fm);font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;color:var(--g);margin-bottom:.8rem}
+.f-links{display:flex;flex-direction:column;gap:.38rem}
+.f-links a{font-size:.84rem;color:var(--t3);transition:color .18s}
+.f-links a:hover{color:var(--g)}
+.f-bot{border-top:1px solid var(--b);padding-top:1.5rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.f-copy{font-size:.76rem;color:var(--t4)}
+/* ── Responsive ── */
+@media(max-width:900px){.cfg-layout{grid-template-columns:1fr}.cfg-side{position:static}.fgrid{grid-template-columns:1fr 1fr}}
+@media(max-width:720px){
+  :root{--nav:58px}
+  .ntog{display:block}
+  .nav-links{position:fixed;top:var(--nav);left:0;right:0;background:rgba(6,4,10,.97);backdrop-filter:blur(22px);border-bottom:1px solid rgba(255,26,58,.18);flex-direction:column;padding:1rem;gap:.18rem;transform:translateY(-110%);opacity:0;transition:transform .3s,opacity .3s;z-index:490}
+  .nav-links.open{transform:translateY(0);opacity:1}
+  .nl{padding:.82rem 1rem;font-size:.95rem;width:100%}
+  .lsw{border-left:none;border-top:1px solid var(--b);padding-left:0;padding-top:.72rem;margin-top:.22rem;width:100%;justify-content:flex-start;gap:.32rem}
+  .sg{grid-template-columns:1fr}
+  .shgrid{grid-template-columns:1fr}
+  .sbgrid{grid-template-columns:1fr}
+  .plan-hero{padding:1.5rem}
+  .plan-grid-bg{display:none}
+  .tb,.setup-bar{margin-left:1.5rem;margin-right:1.5rem}
+  .wks-wrap{padding:1rem 1.5rem 2rem}
+  .opts.c3{grid-template-columns:1fr 1fr}
+  .fgrid{grid-template-columns:1fr}
+  .chat-win{width:calc(100vw - 2rem)}
+  .chat-fab{right:1rem;bottom:1rem}
+  #cur,#cdot{display:none}
+  body *{cursor:auto}
+}
+@media(max-width:480px){.hstats{gap:1.5rem}.hst-n{font-size:2rem}}
+</style>
+</head>
+<body>
+<a href="#main" class="skip">Zum Hauptinhalt springen</a>
+<div id="cur" aria-hidden="true"></div>
+<div id="cdot" aria-hidden="true"></div>
+<canvas id="bgc" aria-hidden="true"></canvas>
+<canvas id="tc" aria-hidden="true"></canvas>
+<!-- NAV -->
+<header class="nav" role="banner">
+  <div class="nav-in">
+    <a href="#home" class="logo" data-page="home" aria-label="GrowLab Startseite">
+      <div class="logo-ico" aria-hidden="true">🌿</div>
+      <div class="logo-nm">Grow<em>Lab</em></div>
+    </a>
+    <button class="ntog" id="ntog" aria-expanded="false" aria-controls="nlinks" aria-label="Navigation öffnen">☰</button>
+    <nav class="nav-links" id="nlinks" role="navigation" aria-label="Hauptnavigation">
+      <a class="nl on" data-page="home"       href="#home"       aria-current="page">🏠 <span data-i="n_home">Start</span></a>
+      <a class="nl"    data-page="konfig"     href="#konfig"     aria-current="false">⚙️ <span data-i="n_cfg">Konfigurator</span></a>
+      <a class="nl"    data-page="sorten"     href="#sorten"     aria-current="false">🌱 <span data-i="n_str">Sorten</span></a>
+      <a class="nl"    data-page="shops"      href="#shops"      aria-current="false">🗺️ <span data-i="n_sh">Growshops</span></a>
+      <a class="nl"    data-page="seeds"      href="#seeds"      aria-current="false">🌍 <span data-i="n_sd">Samenbanken</span></a>
+      <a class="nl"    data-page="techniken"  href="#techniken"  aria-current="false">🎓 <span data-i="n_tc">Techniken</span></a>
+      <div class="lsw" role="group" aria-label="Sprache">
+        <button class="lb on" data-lang="de" aria-pressed="true">DE</button>
+        <button class="lb"    data-lang="en" aria-pressed="false">EN</button>
+        <button class="lb"    data-lang="nl" aria-pressed="false">NL</button>
+        <button class="lb"    data-lang="fr" aria-pressed="false">FR</button>
+        <button class="lb"    data-lang="es" aria-pressed="false">ES</button>
+        <button class="lb"    data-lang="pl" aria-pressed="false">PL</button>
+      </div>
+    </nav>
+  </div>
+</header>
+<main id="main" tabindex="-1">
+<!-- HOME -->
+<section class="page on" id="page-home">
+  <div class="hero">
+    <div class="hero-c">
+      <div class="hkick" id="hkick">🔬 Der präziseste Cannabis-Konfigurator</div>
+      <h1 class="htitle"><span class="ht1" id="ht1">Grow</span><span class="ht2" id="ht2">Lab</span></h1>
+      <p class="hsub" id="hsub" data-i="hero_sub">Setup konfigurieren. Personalisierten Growplan erhalten. Live-Community-Chat. 6 Sprachen. Kostenlos.</p>
+      <div class="hcta">
+        <button class="btn btn-r" data-page="konfig" id="cta1">⚙️ Jetzt konfigurieren →</button>
+        <button class="btn btn-ol" data-page="sorten" id="cta2">🌱 Alle Sorten</button>
+      </div>
+      <div class="hstats">
+        <div class="hst"><div class="hst-n">150+</div><div class="hst-l" data-i="st_str">Sorten</div></div>
+        <div class="hst"><div class="hst-n">65+</div><div class="hst-l" data-i="st_sh">Growshops</div></div>
+        <div class="hst"><div class="hst-n">12</div><div class="hst-l" data-i="st_sb">Samenbanken</div></div>
+        <div class="hst"><div class="hst-n">6</div><div class="hst-l" data-i="st_lng">Sprachen</div></div>
+        <div class="hst"><div class="hst-n" style="color:var(--tl);text-shadow:0 0 20px rgba(0,255,204,.4);">Live</div><div class="hst-l">Community</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="wrap" style="padding-bottom:4rem;">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:1rem;margin-top:1rem;">
+      <div class="card" style="padding:1.65rem 1.45rem;border-left:4px solid var(--r);" tabindex="0">
+        <div style="font-size:1.9rem;margin-bottom:.9rem;">⚙️</div>
+        <div style="font-family:var(--fh);font-size:1.05rem;font-weight:700;letter-spacing:.04em;margin-bottom:.45rem;color:var(--g);" data-i="f1t">Persönlicher Konfigurator</div>
+        <div style="font-size:.84rem;color:var(--t2);line-height:1.6;" data-i="f1d">Zelt, Lampe, Topf, Medium, Nährstoffe — alles einstellbar. Der Plan passt sich deinem Setup an.</div>
+      </div>
+      <div class="card" style="padding:1.65rem 1.45rem;border-left:4px solid var(--g);" tabindex="0">
+        <div style="font-size:1.9rem;margin-bottom:.9rem;">📋</div>
+        <div style="font-family:var(--fh);font-size:1.05rem;font-weight:700;letter-spacing:.04em;margin-bottom:.45rem;color:var(--g);" data-i="f2t">Vollständiger Wochenplan</div>
+        <div style="font-size:.84rem;color:var(--t2);line-height:1.6;" data-i="f2d">Jede Sorte bekommt einen personalisierten Wochenplan mit Nährstoffmengen, Temperaturen und Profi-Tipps.</div>
+      </div>
+      <div class="card" style="padding:1.65rem 1.45rem;border-left:4px solid var(--r2);" tabindex="0">
+        <div style="font-size:1.9rem;margin-bottom:.9rem;">💬</div>
+        <div style="font-family:var(--fh);font-size:1.05rem;font-weight:700;letter-spacing:.04em;margin-bottom:.45rem;color:var(--g);" data-i="f3t">Community Chat</div>
+        <div style="font-size:.84rem;color:var(--t2);line-height:1.6;" data-i="f3d">Chatte live mit anderen Growern. Stelle Fragen, teile Ergebnisse, tausche Erfahrungen aus.</div>
+      </div>
+      <div class="card" style="padding:1.65rem 1.45rem;border-left:4px solid var(--tl);" tabindex="0">
+        <div style="font-size:1.9rem;margin-bottom:.9rem;">🌿</div>
+        <div style="font-family:var(--fh);font-size:1.05rem;font-weight:700;letter-spacing:.04em;margin-bottom:.45rem;color:var(--g);" data-i="f4t">150+ Sorten</div>
+        <div style="font-size:.84rem;color:var(--t2);line-height:1.6;" data-i="f4d">Von günstig bis Premium, 5–35% THC, von 12 der bekanntesten Züchter weltweit.</div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- KONFIGURATOR -->
+<section class="page" id="page-konfig">
+  <div class="wrap">
+    <div class="pgh">
+      <div class="pgeye" data-i="n_cfg">Konfigurator</div>
+      <h1 class="pgtitle">Dein <span class="a">Setup</span></h1>
+      <p class="pgdesc" data-i="cfg_sub">Stelle dein komplettes Grow-Setup ein — der Growplan wird automatisch angepasst.</p>
+    </div>
+    <div class="cfg-layout">
+      <aside class="cfg-side" aria-label="Setup konfigurieren">
+        <!-- Sorte -->
+        <div class="cfp active" id="cfpStrain">
+          <div class="cfp-head">
+            <div class="cfp-ico" style="background:rgba(255,26,58,.14);border:1.5px solid rgba(255,26,58,.28);">🌱</div>
+            <div><div class="cfp-title" data-i="cfg_str">Sorte wählen</div><div class="cfp-sub" id="cfpStrainVal">Keine ausgewählt</div></div>
+          </div>
+          <div class="cfp-body">
+            <select class="csel" id="strainSel" aria-label="Sorte auswählen"><option value="">-- Sorte wählen --</option></select>
+          </div>
+        </div>
+        <!-- Zelt -->
+        <div class="cfp" id="cfpTent">
+          <div class="cfp-head">
+            <div class="cfp-ico" style="background:var(--gd);border:1.5px solid rgba(255,215,0,.28);">⛺</div>
+            <div><div class="cfp-title" data-i="cfg_tent">Zelt / Raum</div><div class="cfp-sub" id="cfpTentVal">60×60×130 cm</div></div>
+          </div>
+          <div class="cfp-body">
+            <div class="opts c2" role="radiogroup" aria-label="Zeltgröße">
+              <div class="opt sel" data-g="tent" data-v="60x60" role="radio" aria-checked="true" tabindex="0"><div class="opt-ico">📦</div><div class="opt-nm">60×60</div><div class="opt-sb">1–2 Pflanzen</div></div>
+              <div class="opt" data-g="tent" data-v="80x80" tabindex="0"><div class="opt-ico">📦</div><div class="opt-nm">80×80</div><div class="opt-sb">2–4 Pflanzen</div></div>
+              <div class="opt" data-g="tent" data-v="100x100" tabindex="0"><div class="opt-ico">🏕️</div><div class="opt-nm">100×100</div><div class="opt-sb">4–6 Pflanzen</div></div>
+              <div class="opt" data-g="tent" data-v="120x120" tabindex="0"><div class="opt-ico">🏕️</div><div class="opt-nm">120×120</div><div class="opt-sb">6–9 Pflanzen</div></div>
+              <div class="opt" data-g="tent" data-v="120x60" tabindex="0"><div class="opt-ico">📐</div><div class="opt-nm">120×60</div><div class="opt-sb">Schmal 3–4</div></div>
+              <div class="opt" data-g="tent" data-v="240x120" tabindex="0"><div class="opt-ico">🏗️</div><div class="opt-nm">240×120</div><div class="opt-sb">Pro 8–12</div></div>
+            </div>
+            <div class="rng-wrap">
+              <div class="rng-row"><span class="rng-lbl">Zelthöhe</span><span class="rng-val" id="thVal">130 cm</span></div>
+              <input type="range" min="100" max="240" value="130" id="tentH" style="--pct:30%" aria-label="Zelthöhe">
+            </div>
+          </div>
+        </div>
+        <!-- Lampe -->
+        <div class="cfp" id="cfpLamp">
+          <div class="cfp-head">
+            <div class="cfp-ico" style="background:var(--gd);border:1.5px solid rgba(255,215,0,.28);">💡</div>
+            <div><div class="cfp-title" data-i="cfg_lamp">Lampe</div><div class="cfp-sub" id="cfpLampVal">400W LED</div></div>
+          </div>
+          <div class="cfp-body">
+            <div class="opts c3" role="radiogroup" aria-label="Lampentyp">
+              <div class="opt sel" data-g="lamp" data-v="led" tabindex="0"><div class="opt-ico">💡</div><div class="opt-nm">LED</div><div class="opt-sb">Effizient</div></div>
+              <div class="opt" data-g="lamp" data-v="hps" tabindex="0"><div class="opt-ico">🔦</div><div class="opt-nm">HPS</div><div class="opt-sb">Klassisch</div></div>
+              <div class="opt" data-g="lamp" data-v="cmh" tabindex="0"><div class="opt-ico">☀️</div><div class="opt-nm">CMH/LEC</div><div class="opt-sb">UV-Reichh.</div></div>
+            </div>
+            <div class="rng-wrap">
+              <div class="rng-row"><span class="rng-lbl">Watt</span><span class="rng-val" id="wattVal">400W</span></div>
+              <input type="range" min="100" max="1000" step="50" value="400" id="lampW" style="--pct:30%" aria-label="Watt">
+            </div>
+            <div style="font-family:var(--fm);font-size:.68rem;color:var(--t3);" id="ppfd">⚡ PPFD ~500–900 µmol/m²/s</div>
+          </div>
+        </div>
+        <!-- Topf & Medium -->
+        <div class="cfp" id="cfpPot">
+          <div class="cfp-head">
+            <div class="cfp-ico" style="background:rgba(255,26,58,.12);border:1.5px solid rgba(255,26,58,.28);">🪴</div>
+            <div><div class="cfp-title" data-i="cfg_pot">Topf & Medium</div><div class="cfp-sub" id="cfpPotVal">15L · Light-Mix</div></div>
+          </div>
+          <div class="cfp-body">
+            <div class="opts c3" role="radiogroup" aria-label="Topfgröße">
+              <div class="opt" data-g="pot" data-v="7" tabindex="0"><div class="opt-ico">🪣</div><div class="opt-nm">7L</div><div class="opt-sb">Auto</div></div>
+              <div class="opt" data-g="pot" data-v="11" tabindex="0"><div class="opt-ico">🪣</div><div class="opt-nm">11L</div><div class="opt-sb">Auto/Photo</div></div>
+              <div class="opt sel" data-g="pot" data-v="15" tabindex="0"><div class="opt-ico">🏺</div><div class="opt-nm">15L</div><div class="opt-sb">Standard</div></div>
+              <div class="opt" data-g="pot" data-v="20" tabindex="0"><div class="opt-ico">🏺</div><div class="opt-nm">20L</div><div class="opt-sb">Mehr Ertrag</div></div>
+              <div class="opt" data-g="pot" data-v="25" tabindex="0"><div class="opt-ico">🛢️</div><div class="opt-nm">25L</div><div class="opt-sb">Sativa/XXL</div></div>
+              <div class="opt" data-g="pot" data-v="fabric" tabindex="0"><div class="opt-ico">👝</div><div class="opt-nm">Fabric</div><div class="opt-sb">Air-Root</div></div>
+            </div>
+            <select class="csel" id="medSel" aria-label="Medium wählen">
+              <option value="soil-light">Erde — BioBizz Light-Mix</option>
+              <option value="soil-all">Erde — BioBizz All-Mix</option>
+              <option value="soil-plagron">Erde — Plagron Grow Mix</option>
+              <option value="coco">Kokoserde (Coco)</option>
+              <option value="coco-perlite">Coco + 30% Perlite</option>
+              <option value="hydro">Hydroponik (Deep Water)</option>
+              <option value="living-soil">Living Soil</option>
+            </select>
+          </div>
+        </div>
+        <!-- Nährstoffe -->
+        <div class="cfp" id="cfpNut">
+          <div class="cfp-head">
+            <div class="cfp-ico" style="background:rgba(0,255,204,.1);border:1.5px solid rgba(0,255,204,.2);">🧪</div>
+            <div><div class="cfp-title" data-i="cfg_nut">Nährstoffsystem</div><div class="cfp-sub" id="cfpNutVal">BioBizz Komplett</div></div>
+          </div>
+          <div class="cfp-body">
+            <div class="opts c2" role="radiogroup" aria-label="Nährstoffe">
+              <div class="opt sel" data-g="nuts" data-v="biobizz" tabindex="0"><div class="opt-ico">🌿</div><div class="opt-nm">BioBizz</div><div class="opt-sb">Organisch</div></div>
+              <div class="opt" data-g="nuts" data-v="canna" tabindex="0"><div class="opt-ico">🧬</div><div class="opt-nm">Canna</div><div class="opt-sb">Mineral</div></div>
+              <div class="opt" data-g="nuts" data-v="advanced" tabindex="0"><div class="opt-ico">⚗️</div><div class="opt-nm">Advanced</div><div class="opt-sb">Pro-Line</div></div>
+              <div class="opt" data-g="nuts" data-v="plagron" tabindex="0"><div class="opt-ico">🔬</div><div class="opt-nm">Plagron</div><div class="opt-sb">DE-Marke</div></div>
+            </div>
+          </div>
+        </div>
+        <!-- Training -->
+        <div class="cfp" id="cfpTrain">
+          <div class="cfp-head">
+            <div class="cfp-ico" style="background:rgba(255,26,58,.12);border:1.5px solid rgba(255,26,58,.28);">✂️</div>
+            <div><div class="cfp-title" data-i="cfg_train">Training</div><div class="cfp-sub" id="cfpTrainVal">LST + Lollipopping</div></div>
+          </div>
+          <div class="cfp-body">
+            <div class="opts c2" role="radiogroup" aria-label="Trainingsmethode">
+              <div class="opt sel" data-g="train" data-v="lst" tabindex="0"><div class="opt-ico">🔗</div><div class="opt-nm">LST</div><div class="opt-sb">Einfach</div></div>
+              <div class="opt" data-g="train" data-v="scrog" tabindex="0"><div class="opt-ico">🕸️</div><div class="opt-nm">SCROG</div><div class="opt-sb">Netz</div></div>
+              <div class="opt" data-g="train" data-v="topping" tabindex="0"><div class="opt-ico">✂️</div><div class="opt-nm">Topping</div><div class="opt-sb">Mehr Colas</div></div>
+              <div class="opt" data-g="train" data-v="none" tabindex="0"><div class="opt-ico">🌱</div><div class="opt-nm">Natural</div><div class="opt-sb">Kein Training</div></div>
+            </div>
+          </div>
+        </div>
+        <!-- Yield preview -->
+        <div class="yprev">
+          <div class="yn" id="ynNum">— g</div>
+          <div class="yl" data-i="cfg_yield">Geschätzter Ertrag</div>
+          <div class="yn2" id="ynNote">Bitte Sorte auswählen</div>
+        </div>
+      </aside>
+      <!-- Plan -->
+      <div id="planOut">
+        <div style="background:var(--s);border:1.5px solid var(--b);border-radius:22px;padding:3rem 2.5rem;text-align:center;">
+          <div style="font-size:3.5rem;margin-bottom:1rem;">⚙️</div>
+          <div style="font-family:var(--fh);font-size:1.5rem;font-weight:900;color:var(--g);margin-bottom:.6rem;" data-i="cfg_empty_t">Setup konfigurieren</div>
+          <p style="color:var(--t2);font-size:.94rem;max-width:380px;margin:0 auto 1.5rem;line-height:1.7;" data-i="cfg_empty_d">Wähle links deine Sorte und dein Equipment. Dein vollständiger, personalisierter Growplan erscheint hier.</p>
+          <button class="btn btn-r" onclick="document.getElementById('strainSel').focus()">🌱 Sorte auswählen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- SORTEN -->
+<section class="page" id="page-sorten">
+  <div class="wrap">
+    <div class="pgh">
+      <div class="pgeye" data-i="n_str">Sorten</div>
+      <h1 class="pgtitle">Alle <span class="a">Sorten</span></h1>
+      <p class="pgdesc" data-i="str_sub">Klicke eine Sorte — du erhältst deinen vollständigen Growplan oder öffne den Konfigurator.</p>
+    </div>
+    <div class="sw"><span class="sico" aria-hidden="true">🔍</span><input type="search" class="si" id="strSrc" placeholder="Sorte, Züchter, Aroma suchen..." aria-label="Sorten suchen"><button class="sx" id="strSrcX" aria-label="Löschen">✕</button></div>
+    <div class="filters" id="strFilters" role="group" aria-label="Filter">
+      <button class="fc on" data-f="all"><span data-i="f_all">Alle</span><span class="fcnt" id="cnt-all">0</span></button>
+      <button class="fc" data-f="photo"><span data-i="f_photo">Photoperiod</span><span class="fcnt" id="cnt-photo">0</span></button>
+      <button class="fc" data-f="auto"><span data-i="f_auto">Autoflower</span><span class="fcnt" id="cnt-auto">0</span></button>
+      <button class="fc" data-f="indica"><span data-i="f_indica">Indica</span><span class="fcnt" id="cnt-indica">0</span></button>
+      <button class="fc" data-f="sativa"><span data-i="f_sativa">Sativa</span><span class="fcnt" id="cnt-sativa">0</span></button>
+      <button class="fc" data-f="hybrid"><span data-i="f_hybrid">Hybrid</span><span class="fcnt" id="cnt-hybrid">0</span></button>
+      <button class="fc" data-f="cbd"><span data-i="f_cbd">CBD</span><span class="fcnt" id="cnt-cbd">0</span></button>
+      <button class="fc" data-f="easy"><span data-i="f_easy">Einfach</span></button>
+      <button class="fc" data-f="cheap"><span data-i="f_cheap">Budget €</span></button>
+      <button class="fc" data-f="premium"><span data-i="f_prem">Premium €€€€</span></button>
+      <button class="fc" data-f="highthc"><span>High THC 25%+</span></button>
+      <button class="fc" data-f="color"><span>Lila / Bunt</span></button>
+    </div>
+    <div class="rbar" id="strCount" aria-live="polite"></div>
+    <div class="sg" id="strGrid" role="list" aria-label="Sorten"></div>
+    <div style="padding-bottom:3rem;"></div>
+  </div>
+</section>
+<!-- SHOPS -->
+<section class="page" id="page-shops">
+  <div class="wrap">
+    <div class="pgh">
+      <div class="pgeye" data-i="n_sh">Growshops</div>
+      <h1 class="pgtitle">Growshops <span class="a">Weltweit</span></h1>
+      <p class="pgdesc" data-i="sh_sub">65+ recherchierte Growshops in Deutschland und weltweit.</p>
+    </div>
+    <div class="sw"><span class="sico" aria-hidden="true">🔍</span><input type="search" class="si" id="shSrc" placeholder="Stadt oder Name..." aria-label="Shop suchen"><button class="sx" id="shSrcX" aria-label="Löschen">✕</button></div>
+    <div class="rtabs" role="tablist" id="rtabs">
+      <button class="rtab on" data-r="alle" role="tab" aria-selected="true">🌍 Alle</button>
+      <button class="rtab" data-r="berlin"  role="tab">🏙️ Berlin</button>
+      <button class="rtab" data-r="hamburg" role="tab">⚓ Hamburg</button>
+      <button class="rtab" data-r="Bayern"  role="tab">🏔️ Bayern</button>
+      <button class="rtab" data-r="hessen"  role="tab">🍎 Hessen</button>
+      <button class="rtab" data-r="nrw"     role="tab">🏭 NRW</button>
+      <button class="rtab" data-r="bw"      role="tab">🌲 BW</button>
+      <button class="rtab" data-r="sachsen" role="tab">🎻 Sachsen</button>
+      <button class="rtab" data-r="online"  role="tab">💻 Online DE</button>
+      <button class="rtab" data-r="world"   role="tab">🌐 Weltweit</button>
+    </div>
+    <div class="rbar" id="shCount" aria-live="polite"></div>
+    <div class="shgrid" id="shGrid" role="list"></div>
+    <div style="padding-bottom:3rem;"></div>
+  </div>
+</section>
+<!-- SEEDS -->
+<section class="page" id="page-seeds">
+  <div class="wrap">
+    <div class="pgh">
+      <div class="pgeye" data-i="n_sd">Samenbanken</div>
+      <h1 class="pgtitle">Züchter & <span class="a">Shops</span></h1>
+      <p class="pgdesc" data-i="sd_sub">Die wichtigsten Samenbanken weltweit im Vergleich + Online-Shops mit DE-Versand.</p>
+    </div>
+    <div class="tbar" role="tablist">
+      <button class="tbtn on" data-tb="banks" role="tab" aria-selected="true" id="tbb" data-i="tab_bnk">🌱 Samenbanken</button>
+      <button class="tbtn" data-tb="shops" role="tab" aria-selected="false" id="tbs" data-i="tab_sh">🛍️ Online-Shops</button>
+    </div>
+    <div class="tpanel on" id="tbp-banks" role="tabpanel" aria-labelledby="tbb"><div class="sbgrid" id="sbGrid"></div></div>
+    <div class="tpanel" id="tbp-shops" role="tabpanel" aria-labelledby="tbs"><div class="oslist" id="osList"></div></div>
+    <div style="padding-bottom:3rem;"></div>
+  </div>
+</section>
+<!-- TECHNIKEN -->
+<section class="page" id="page-techniken">
+  <div class="wrap">
+    <div class="pgh">
+      <div class="pgeye" data-i="n_tc">Techniken</div>
+      <h1 class="pgtitle">Training <span class="a">Methoden</span></h1>
+      <p class="pgdesc" data-i="tc_sub">Vollständige Anleitungen mit Bildern und YouTube-Tutorials.</p>
+    </div>
+    <div class="tlist" id="techList"></div>
+    <div style="padding-bottom:3rem;"></div>
+  </div>
+</section>
+</main>
+<!-- FOOTER -->
+<footer class="footer" role="contentinfo">
+  <div class="wrap">
+    <div class="fgrid">
+      <div>
+        <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.55rem;">
+          <div style="width:30px;height:30px;background:linear-gradient(135deg,var(--r),var(--g2));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.95rem;">🌿</div>
+          <div style="font-family:var(--fh);font-size:1.3rem;font-weight:900;letter-spacing:.06em;">Grow<em style="color:var(--r);font-style:normal;text-shadow:0 0 12px var(--rg);">Lab</em></div>
+        </div>
+        <div class="f-desc" data-i="f_desc">Der präziseste Cannabis-Konfigurator Deutschlands. Vollständig personalisiert.</div>
+        <div class="f-legal" data-i="f_legal">Cannabis-Anbau ist in Deutschland gemäß CanG für Personen ab 18 Jahren erlaubt (max. 3 Pflanzen). Bitte lokale Gesetze beachten.</div>
+      </div>
+      <div>
+        <div class="f-ct" data-i="f_nav">Navigation</div>
+        <div class="f-links">
+          <a data-page="home" href="#home" data-i="n_home">Start</a>
+          <a data-page="konfig" href="#konfig" data-i="n_cfg">Konfigurator</a>
+          <a data-page="sorten" href="#sorten" data-i="n_str">Sorten</a>
+          <a data-page="shops" href="#shops" data-i="n_sh">Growshops</a>
+          <a data-page="seeds" href="#seeds" data-i="n_sd">Samenbanken</a>
+          <a data-page="techniken" href="#techniken" data-i="n_tc">Techniken</a>
+        </div>
+      </div>
+      <div>
+        <div class="f-ct" data-i="f_br">Top-Züchter</div>
+        <div class="f-links">
+          <a href="https://royalqueenseeds.com" target="_blank" rel="noopener">Royal Queen Seeds</a>
+          <a href="https://barneysfarm.com" target="_blank" rel="noopener">Barney's Farm</a>
+          <a href="https://sensiseeds.com" target="_blank" rel="noopener">Sensi Seeds</a>
+          <a href="https://dutch-passion.com" target="_blank" rel="noopener">Dutch Passion</a>
+          <a href="https://2fast4buds.com" target="_blank" rel="noopener">Fast Buds</a>
+          <a href="https://sweetseeds.com" target="_blank" rel="noopener">Sweet Seeds</a>
+        </div>
+      </div>
+      <div>
+        <div class="f-ct" data-i="f_res">Ressourcen</div>
+        <div class="f-links">
+          <a href="https://growdiaries.com" target="_blank" rel="noopener">GrowDiaries</a>
+          <a href="https://growweedeasy.com" target="_blank" rel="noopener">GrowWeedEasy</a>
+          <a href="https://cannapot.com" target="_blank" rel="noopener">Cannapot</a>
+          <a href="https://seedsman.com" target="_blank" rel="noopener">Seedsman</a>
+          <a href="https://hanfverband.de" target="_blank" rel="noopener">Hanfverband</a>
+        </div>
+      </div>
+    </div>
+    <div class="f-bot">
+      <div class="f-copy">© 2026 GrowLab — Für die Grow-Community 🔴🟡</div>
+      <div class="f-copy" data-i="f_made">Recherchiert & gebaut mit ❤️</div>
+    </div>
+  </div>
+</footer>
+<!-- COMMUNITY CHAT -->
+<div class="chat-fab" role="complementary" aria-label="Community Chat">
+  <div class="chat-win" id="chatWin" aria-live="polite">
+    <div class="cname-modal" id="cnameModal">
+      <div class="cname-box">
+        <div class="cname-title">👤 Dein Name</div>
+        <div class="cname-sub">Wähle einen Grower-Namen für den Chat.</div>
+        <input type="text" id="cname" placeholder="z.B. GreenThumb420" maxlength="20" autocomplete="off">
+        <button class="btn btn-r" style="width:100%;margin-top:.2rem;" id="cnameBtn">Beitreten →</button>
+      </div>
+    </div>
+    <div class="chat-hd">
+      <div class="chat-hd-ico" aria-hidden="true">💬</div>
+      <div class="chat-hd-info">
+        <div class="chat-hd-title">Community Chat</div>
+        <div class="chat-online" id="chatOnline">5 Grower online</div>
+      </div>
+      <button class="chat-cls" id="chatCls" aria-label="Chat schließen">✕</button>
+    </div>
+    <div class="chat-msgs" id="chatMsgs" role="log" aria-label="Nachrichten"></div>
+    <div class="chat-typ" id="chatTyp" aria-live="polite"></div>
+    <div class="cemoji-row" aria-label="Schnell-Emojis">
+      <button class="cem" data-e="🌿">🌿</button>
+      <button class="cem" data-e="🔥">🔥</button>
+      <button class="cem" data-e="💚">💚</button>
+      <button class="cem" data-e="🌱">🌱</button>
+      <button class="cem" data-e="💎">💎</button>
+      <button class="cem" data-e="👍">👍</button>
+      <button class="cem" data-e="❓">❓</button>
+    </div>
+    <div class="chat-inp-row">
+      <input type="text" id="cinput" placeholder="Nachricht schreiben..." maxlength="200" autocomplete="off" aria-label="Chatnachricht">
+      <button class="csend" id="csend" aria-label="Senden">➤</button>
+    </div>
+  </div>
+  <button class="chat-opn" id="chatOpn" aria-label="Community Chat" aria-expanded="false" style="position:relative;">
+    💬
+    <span class="chat-notif" id="chatN" aria-label="Neue Nachrichten">3</span>
+  </button>
+</div>
+<script>
+'use strict';
+/* ══════════════════════════════════════════════════
+   i18n — 6 languages
+══════════════════════════════════════════════════ */
+const LANGS={
+de:{n_home:'Start',n_cfg:'Konfigurator',n_str:'Sorten',n_sh:'Growshops',n_sd:'Samenbanken',n_tc:'Techniken',
+hero_sub:'Setup konfigurieren. Personalisierten Growplan erhalten. Live-Community-Chat. 6 Sprachen.',
+st_str:'Sorten',st_sh:'Growshops',st_sb:'Samenbanken',st_lng:'Sprachen',
+f1t:'Persönlicher Konfigurator',f1d:'Zelt, Lampe, Topf, Medium — alles einstellbar.',
+f2t:'Vollständiger Wochenplan',f2d:'Jede Sorte bekommt einen personalisierten Plan.',
+f3t:'Community Chat',f3d:'Chatte live mit anderen Growern.',
+f4t:'150+ Sorten',f4d:'Von günstig bis Premium, 5–35% THC.',
+cfg_sub:'Stelle dein Setup ein — der Plan wird automatisch angepasst.',
+cfg_str:'Sorte wählen',cfg_tent:'Zelt / Raum',cfg_lamp:'Lampe',cfg_pot:'Topf & Medium',
+cfg_nut:'Nährstoffsystem',cfg_train:'Training',cfg_yield:'Geschätzter Ertrag',
+cfg_empty_t:'Setup konfigurieren',cfg_empty_d:'Wähle Sorte und Equipment — dein Plan erscheint hier.',
+str_sub:'Klicke eine Sorte für deinen Growplan.',
+sh_sub:'65+ Growshops in Deutschland und weltweit.',
+sd_sub:'Wichtigste Züchter + Online-Shops nach Deutschland.',
+tc_sub:'Anleitungen mit Bildern und YouTube-Links.',
+tab_bnk:'🌱 Samenbanken',tab_sh:'🛍️ Online-Shops',
+f_all:'Alle',f_photo:'Photoperiod',f_auto:'Autoflower',f_indica:'Indica',f_sativa:'Sativa',
+f_hybrid:'Hybrid',f_cbd:'CBD',f_easy:'Einfach',f_cheap:'Budget €',f_prem:'Premium €€€€',
+f_desc:'Der präziseste Cannabis-Konfigurator Deutschlands.',
+f_legal:'Anbau gemäß CanG für Volljährige, max. 3 Pflanzen.',
+f_nav:'Navigation',f_br:'Top-Züchter',f_res:'Ressourcen',f_made:'Recherchiert & gebaut mit ❤️',
+profi_tip:'Profi-Tip',nutrients:'Nährstoffe'},
+en:{n_home:'Home',n_cfg:'Configurator',n_str:'Strains',n_sh:'Grow Shops',n_sd:'Seed Banks',n_tc:'Techniques',
+hero_sub:'Configure your setup. Get a personalised grow plan. Live community chat. 6 languages.',
+st_str:'Strains',st_sh:'Grow Shops',st_sb:'Seed Banks',st_lng:'Languages',
+f1t:'Personal Configurator',f1d:'Tent, lamp, pot, medium — all adjustable.',
+f2t:'Full Weekly Plan',f2d:'Every strain gets a personalised plan.',
+f3t:'Community Chat',f3d:'Chat live with other growers.',
+f4t:'150+ Strains',f4d:'From budget to premium, 5–35% THC.',
+cfg_sub:'Configure your setup — the plan adjusts automatically.',
+cfg_str:'Choose Strain',cfg_tent:'Tent / Room',cfg_lamp:'Light',cfg_pot:'Pot & Medium',
+cfg_nut:'Nutrient System',cfg_train:'Training',cfg_yield:'Estimated Yield',
+cfg_empty_t:'Configure Setup',cfg_empty_d:'Choose strain and equipment — your plan appears here.',
+str_sub:'Click a strain to get your grow plan.',
+sh_sub:'65+ grow shops in Germany and worldwide.',
+sd_sub:'Top breeders compared + online shops shipping to Germany.',
+tc_sub:'Step-by-step guides with images and YouTube tutorials.',
+tab_bnk:'🌱 Seed Banks',tab_sh:'🛍️ Online Shops',
+f_all:'All',f_photo:'Photoperiod',f_auto:'Autoflower',f_indica:'Indica',f_sativa:'Sativa',
+f_hybrid:'Hybrid',f_cbd:'CBD',f_easy:'Easy',f_cheap:'Budget €',f_prem:'Premium €€€€',
+f_desc:'The most precise cannabis configurator for Germany.',
+f_legal:'Growing allowed for adults under CanG, max. 3 plants.',
+f_nav:'Navigation',f_br:'Top Breeders',f_res:'Resources',f_made:'Researched & built with ❤️',
+profi_tip:'Pro Tip',nutrients:'Nutrients'},
+nl:{n_home:'Start',n_cfg:'Configurator',n_str:'Soorten',n_sh:'Growshops',n_sd:'Zaadbanken',n_tc:'Technieken',
+hero_sub:'Setup configureren. Persoonlijk groeiplan ontvangen. Live community chat.',
+st_str:'Soorten',st_sh:'Growshops',st_sb:'Zaadbanken',st_lng:'Talen',
+f1t:'Persoonlijke Configurator',f1d:'Tent, lamp, pot, medium — alles instelbaar.',
+f2t:'Volledig Weekplan',f2d:'Elke soort krijgt een gepersonaliseerd plan.',
+f3t:'Community Chat',f3d:'Chat live met andere growers.',
+f4t:'150+ Soorten',f4d:'Van budget tot premium.',
+cfg_sub:'Stel je setup in — het plan past zich automatisch aan.',
+cfg_str:'Kies Soort',cfg_tent:'Tent / Ruimte',cfg_lamp:'Lamp',cfg_pot:'Pot & Medium',
+cfg_nut:'Voedingssysteem',cfg_train:'Training',cfg_yield:'Geschatte Opbrengst',
+cfg_empty_t:'Setup configureren',cfg_empty_d:'Kies soort en equipment.',
+str_sub:'Klik een soort voor je groeiplan.',
+sh_sub:'65+ growshops in Duitsland en wereldwijd.',
+sd_sub:'Zaadbanken vergeleken + online winkels.',
+tc_sub:'Stap-voor-stap handleidingen.',
+tab_bnk:'🌱 Zaadbanken',tab_sh:'🛍️ Online Winkels',
+f_all:'Alle',f_photo:'Fotoperiode',f_auto:'Autoflower',f_indica:'Indica',f_sativa:'Sativa',
+f_hybrid:'Hybride',f_cbd:'CBD',f_easy:'Makkelijk',f_cheap:'Budget €',f_prem:'Premium €€€€',
+f_desc:'De meest precieze cannabis configurator.',
+f_legal:'Kweek voor volwassenen, max. 3 planten.',
+f_nav:'Navigatie',f_br:'Top Kwekers',f_res:'Bronnen',f_made:'Onderzocht & gebouwd met ❤️',
+profi_tip:'Pro Tip',nutrients:'Voedingsstoffen'},
+fr:{n_home:'Accueil',n_cfg:'Configurateur',n_str:'Variétés',n_sh:'Growshops',n_sd:'Banques',n_tc:'Techniques',
+hero_sub:'Configurer votre setup. Obtenir un plan personnalisé. Chat communautaire en direct.',
+st_str:'Variétés',st_sh:'Growshops',st_sb:'Banques',st_lng:'Langues',
+f1t:'Configurateur Personnel',f1d:'Tente, lampe, pot — tout réglable.',
+f2t:'Plan Hebdomadaire Complet',f2d:'Chaque variété reçoit un plan personnalisé.',
+f3t:'Chat Communautaire',f3d:'Chattez en direct avec d\'autres cultivateurs.',
+f4t:'150+ Variétés',f4d:'Du budget au premium.',
+cfg_sub:'Configurez votre setup — le plan s\'adapte automatiquement.',
+cfg_str:'Choisir Variété',cfg_tent:'Tente / Pièce',cfg_lamp:'Lampe',cfg_pot:'Pot & Substrat',
+cfg_nut:'Nutriments',cfg_train:'Entraînement',cfg_yield:'Rendement Estimé',
+cfg_empty_t:'Configurer',cfg_empty_d:'Choisissez variété et équipement.',
+str_sub:'Cliquez pour obtenir votre plan de culture.',
+sh_sub:'65+ growshops en Allemagne et dans le monde.',
+sd_sub:'Cultivateurs comparés + boutiques en ligne.',
+tc_sub:'Guides étape par étape.',
+tab_bnk:'🌱 Banques de Graines',tab_sh:'🛍️ Boutiques',
+f_all:'Toutes',f_photo:'Photopériode',f_auto:'Autofloraison',f_indica:'Indica',f_sativa:'Sativa',
+f_hybrid:'Hybride',f_cbd:'CBD',f_easy:'Débutant',f_cheap:'Budget €',f_prem:'Premium €€€€',
+f_desc:'Le configurateur cannabis le plus précis.',
+f_legal:'Culture pour adultes, max. 3 plantes.',
+f_nav:'Navigation',f_br:'Top Cultivateurs',f_res:'Ressources',f_made:'Recherché & construit avec ❤️',
+profi_tip:'Conseil Pro',nutrients:'Nutriments'},
+es:{n_home:'Inicio',n_cfg:'Configurador',n_str:'Variedades',n_sh:'Growshops',n_sd:'Bancos',n_tc:'Técnicas',
+hero_sub:'Configura tu setup. Obtén un plan personalizado. Chat comunitario en vivo.',
+st_str:'Variedades',st_sh:'Growshops',st_sb:'Bancos',st_lng:'Idiomas',
+f1t:'Configurador Personal',f1d:'Tienda, lámpara, maceta — todo ajustable.',
+f2t:'Plan Semanal Completo',f2d:'Cada variedad recibe un plan personalizado.',
+f3t:'Chat Comunitario',f3d:'Chatea en directo con otros cultivadores.',
+f4t:'150+ Variedades',f4d:'De económico a premium.',
+cfg_sub:'Configura tu setup — el plan se adapta automáticamente.',
+cfg_str:'Elegir Variedad',cfg_tent:'Tienda / Habitación',cfg_lamp:'Lámpara',cfg_pot:'Maceta & Sustrato',
+cfg_nut:'Nutrientes',cfg_train:'Entrenamiento',cfg_yield:'Rendimiento Estimado',
+cfg_empty_t:'Configurar',cfg_empty_d:'Elige variedad y equipo.',
+str_sub:'Haz clic para obtener tu plan de cultivo.',
+sh_sub:'65+ growshops en Alemania y en todo el mundo.',
+sd_sub:'Cultivadores comparados + tiendas online.',
+tc_sub:'Guías paso a paso.',
+tab_bnk:'🌱 Bancos de Semillas',tab_sh:'🛍️ Tiendas',
+f_all:'Todas',f_photo:'Fotoperiodo',f_auto:'Autofloreciente',f_indica:'Indica',f_sativa:'Sativa',
+f_hybrid:'Híbrida',f_cbd:'CBD',f_easy:'Principiante',f_cheap:'Económico €',f_prem:'Premium €€€€',
+f_desc:'El configurador de cannabis más preciso.',
+f_legal:'Cultivo para adultos, máx. 3 plantas.',
+f_nav:'Navegación',f_br:'Top Cultivadores',f_res:'Recursos',f_made:'Investigado & construido con ❤️',
+profi_tip:'Consejo Pro',nutrients:'Nutrientes'},
+pl:{n_home:'Start',n_cfg:'Konfigurator',n_str:'Odmiany',n_sh:'Growshopy',n_sd:'Banki Nasion',n_tc:'Techniki',
+hero_sub:'Skonfiguruj setup. Otrzymaj spersonalizowany plan. Czat społeczności na żywo.',
+st_str:'Odmiany',st_sh:'Growshopy',st_sb:'Banki',st_lng:'Języki',
+f1t:'Osobisty Konfigurator',f1d:'Namiot, lampa, doniczka — wszystko regulowane.',
+f2t:'Pełny Plan Tygodniowy',f2d:'Każda odmiana otrzymuje spersonalizowany plan.',
+f3t:'Chat Społeczności',f3d:'Rozmawiaj z innymi growerami.',
+f4t:'150+ Odmian',f4d:'Od budżetowych do premium.',
+cfg_sub:'Skonfiguruj swój setup — plan dostosowuje się automatycznie.',
+cfg_str:'Wybierz Odmianę',cfg_tent:'Namiot / Pomieszczenie',cfg_lamp:'Lampa',cfg_pot:'Doniczka & Podłoże',
+cfg_nut:'Nawożenie',cfg_train:'Trening',cfg_yield:'Szacowany Plon',
+cfg_empty_t:'Konfiguruj',cfg_empty_d:'Wybierz odmianę i sprzęt.',
+str_sub:'Kliknij odmianę, aby uzyskać plan uprawy.',
+sh_sub:'65+ growshopów na całym świecie.',
+sd_sub:'Hodowcy porównani + sklepy online.',
+tc_sub:'Przewodniki krok po kroku.',
+tab_bnk:'🌱 Banki Nasion',tab_sh:'🛍️ Sklepy Online',
+f_all:'Wszystkie',f_photo:'Fotoperiod',f_auto:'Autoflowering',f_indica:'Indica',f_sativa:'Sativa',
+f_hybrid:'Hybryd',f_cbd:'CBD',f_easy:'Łatwe',f_cheap:'Budżet €',f_prem:'Premium €€€€',
+f_desc:'Najbardziej precyzyjny konfigurator cannabis.',
+f_legal:'Uprawa dla dorosłych, maks. 3 rośliny.',
+f_nav:'Nawigacja',f_br:'Top Hodowcy',f_res:'Zasoby',f_made:'Zbadane & zbudowane z ❤️',
+profi_tip:'Porada Pro',nutrients:'Składniki Odżywcze'},
+};
+let LANG='de';
+const t=k=>(LANGS[LANG]&&LANGS[LANG][k])||LANGS.de[k]||k;
+function applyI18n(){document.querySelectorAll('[data-i]').forEach(el=>{const v=t(el.dataset.i);if(v)el.textContent=v});document.documentElement.lang=LANG;}
+function setLang(l){LANG=l;document.querySelectorAll('.lb').forEach(b=>{b.classList.toggle('on',b.dataset.lang===l);b.setAttribute('aria-pressed',b.dataset.lang===l)});applyI18n();renderAll();}
+/* ══ State ══ */
+const S={page:'home',strain:null,setup:{tent:'60x60',height:130,lampType:'led',watt:400,pot:'15',medium:'soil-light',nuts:'biobizz',train:'lst'},shopR:'alle',shopQ:'',strF:'all',strQ:''};
+/* ══ Terpene Canvas ══ */
+(()=>{
+  const c=document.getElementById('tc');if(!c)return;
+  const ctx=c.getContext('2d');
+  let W,H,P=[];
+  const TYPES=[
+    {g:'rgba(255,26,58,',  sz:[2,5],  sp:[.12,.42]},
+    {g:'rgba(255,215,0,',  sz:[1.5,4],sp:[.18,.48]},
+    {g:'rgba(255,100,160,',sz:[2,4],  sp:[.08,.32]},
+    {g:'rgba(0,255,204,',  sz:[1.5,3],sp:[.18,.52]},
+    {g:'rgba(255,140,66,', sz:[2,4.5],sp:[.1,.38]},
+  ];
+  function resize(){W=c.width=innerWidth;H=c.height=innerHeight}
+  resize();window.addEventListener('resize',()=>{resize();init()});
+  function init(){
+    P=[];
+    const n=Math.min(90,Math.floor(W*H/11000));
+    for(let i=0;i<n;i++){
+      const tp=TYPES[i%TYPES.length];
+      const sp=tp.sp[0]+Math.random()*(tp.sp[1]-tp.sp[0]);
+      P.push({x:Math.random()*W,y:Math.random()*H,r:tp.sz[0]+Math.random()*(tp.sz[1]-tp.sz[0]),vx:(Math.random()-.5)*sp,vy:(Math.random()-.5)*sp,g:tp.g,a:Math.random()*.45+.08,ad:(Math.random()-.5)*.004,trail:[],tm:6+Math.floor(Math.random()*8),pu:Math.random()*Math.PI*2,ps:.02+Math.random()*.028,conn:Math.random()>.55});
+    }
+  }
+  init();
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    // connections
+    for(let i=0;i<P.length;i++){
+      if(!P[i].conn)continue;
+      for(let j=i+1;j<P.length;j++){
+        if(!P[j].conn)continue;
+        const dx=P[i].x-P[j].x,dy=P[i].y-P[j].y,d=Math.sqrt(dx*dx+dy*dy);
+        if(d<110){
+          const a=(1-d/110)*.12;
+          ctx.beginPath();ctx.strokeStyle=`rgba(255,215,0,${a})`;ctx.lineWidth=.45;
+          ctx.moveTo(P[i].x,P[i].y);ctx.lineTo(P[j].x,P[j].y);ctx.stroke();
+        }
+      }
+    }
+    P.forEach(p=>{
+      p.pu+=p.ps;const pr=p.r*(1+Math.sin(p.pu)*.2);
+      p.a+=p.ad;if(p.a<.05||p.a>.6)p.ad*=-1;
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<-10)p.x=W+10;if(p.x>W+10)p.x=-10;
+      if(p.y<-10)p.y=H+10;if(p.y>H+10)p.y=-10;
+      p.trail.push({x:p.x,y:p.y});
+      if(p.trail.length>p.tm)p.trail.shift();
+      if(p.trail.length>1){
+        for(let i=1;i<p.trail.length;i++){
+          const a=(i/p.trail.length)*p.a*.45;
+          ctx.beginPath();ctx.strokeStyle=`${p.g}${a})`;ctx.lineWidth=pr*.35*(i/p.trail.length);
+          ctx.moveTo(p.trail[i-1].x,p.trail[i-1].y);ctx.lineTo(p.trail[i].x,p.trail[i].y);ctx.stroke();
+        }
+      }
+      const gr=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,pr*3);
+      gr.addColorStop(0,`${p.g}${p.a})`);gr.addColorStop(1,`${p.g}0)`);
+      ctx.beginPath();ctx.arc(p.x,p.y,pr*3,0,Math.PI*2);ctx.fillStyle=gr;ctx.fill();
+      ctx.beginPath();ctx.arc(p.x,p.y,pr,0,Math.PI*2);ctx.fillStyle=`${p.g}${Math.min(p.a*1.8,.88)})`;ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+/* ══ Background grid canvas ══ */
+(()=>{
+  const c=document.getElementById('bgc');if(!c)return;
+  const ctx=c.getContext('2d');
+  function draw(){
+    c.width=innerWidth;c.height=innerHeight;
+    ctx.strokeStyle='rgba(255,26,58,.04)';ctx.lineWidth=.5;
+    for(let x=0;x<c.width;x+=60){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,c.height);ctx.stroke();}
+    for(let y=0;y<c.height;y+=60){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(c.width,y);ctx.stroke();}
+    ctx.fillStyle='rgba(255,215,0,.07)';
+    for(let x=0;x<c.width;x+=60)for(let y=0;y<c.height;y+=60){ctx.beginPath();ctx.arc(x,y,1.5,0,Math.PI*2);ctx.fill();}
+  }
+  draw();window.addEventListener('resize',draw);
+})();
+/* ══ Custom cursor ══ */
+(()=>{
+  const cur=document.getElementById('cur'),dot=document.getElementById('cdot');
+  if(!cur||!dot)return;
+  let mx=0,my=0,cx=0,cy=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px';});
+  (function anim(){cx+=(mx-cx)*.15;cy+=(my-cy)*.15;cur.style.left=cx+'px';cur.style.top=cy+'px';requestAnimationFrame(anim)})();
+  document.querySelectorAll('button,a,.opt,.fc,.rtab,.tbtn,.cem,.sc,.sh,.sbc,.ti,.wk-btn').forEach(el=>{
+    el.addEventListener('mouseenter',()=>cur.classList.add('h'));
+    el.addEventListener('mouseleave',()=>cur.classList.remove('h'));
+  });
+})();
+/* ══ Router ══ */
+function go(page,push=true){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  const el=document.getElementById('page-'+page);
+  if(el)el.classList.add('on');
+  S.page=page;
+  document.querySelectorAll('.nl').forEach(l=>{l.classList.toggle('on',l.dataset.page===page);l.setAttribute('aria-current',l.dataset.page===page?'page':'false');});
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(push)history.pushState({page},'','#'+page);
+  document.getElementById('main')?.focus();
+  closeMMenu();
+  renderPage(page);
+}
+window.addEventListener('popstate',e=>go((e.state&&e.state.page)||'home',false));
+/* ══ Mobile menu ══ */
+function initMMenu(){
+  const tog=document.getElementById('ntog'),links=document.getElementById('nlinks');
+  if(!tog||!links)return;
+  tog.addEventListener('click',()=>{const o=links.classList.toggle('open');tog.setAttribute('aria-expanded',o);tog.textContent=o?'✕':'☰';});
+}
+function closeMMenu(){const l=document.getElementById('nlinks'),t=document.getElementById('ntog');l?.classList.remove('open');if(t){t.setAttribute('aria-expanded','false');t.textContent='☰';}}
+/* ══ Render dispatch ══ */
+function renderPage(p){applyI18n();switch(p){case'konfig':renderKonfig();break;case'sorten':renderSorten();break;case'shops':renderShops();break;case'seeds':renderSeeds();break;case'techniken':renderTech();break;}}
+function renderAll(){renderPage(S.page);}
+/* ══════════════════════════════════════════════
+   STRAIN DATABASE
+══════════════════════════════════════════════ */
+const STRAINS=[
+  {id:'rqs-nl',  n:'Northern Lights',        b:'Royal Queen Seeds',tp:'photo-indica',thc:18,cbd:.1,yi:500, bl:8, d:'Einfach',   ac:'#fbbf24',p:'€€',  tp_:false,hi:false,terp:'Süß · Holz · Harz · Erde',         desc:'Die Legende. 35+ Jahre Maßstab. Extrem robust.'},
+  {id:'rqs-ww',  n:'White Widow',            b:'Royal Queen Seeds',tp:'photo-hybrid', thc:19,cbd:.1,yi:480, bl:9, d:'Einfach',   ac:'#e0e0e0',p:'€€',  tp_:false,hi:false,terp:'Erde · Holz · Pfeffer · Zitrus',   desc:'Holländische Klassikerin. Extreme Trichombedeckung.'},
+  {id:'rqs-og',  n:'OG Kush',                b:'Royal Queen Seeds',tp:'photo-hybrid', thc:19,cbd:.3,yi:450, bl:9, d:'Mittel',    ac:'#a8ff3e',p:'€€',  tp_:false,hi:false,terp:'Zitrus · Kiefer · Erde · Diesel',  desc:'Westküsten-Ikone. Zitrus-Kiefer-Profil.'},
+  {id:'rqs-ah',  n:'Amnesia Haze',           b:'Royal Queen Seeds',tp:'photo-sativa', thc:22,cbd:1, yi:650, bl:11,d:'Fortgeschr.',ac:'#ffd54f',p:'€€',  tp_:false,hi:false,terp:'Zitrus · Erde · Haze · Kampfer',  desc:'Cannabis Cup Gewinner. Energetischer Sativa.'},
+  {id:'rqs-rg',  n:'Royal Gorilla',          b:'Royal Queen Seeds',tp:'photo-hybrid', thc:25,cbd:.1,yi:550, bl:9, d:'Mittel',    ac:'#a8ff3e',p:'€€',  tp_:false,hi:true, terp:'Kiefer · Erde · Diesel · Schoko', desc:'GG4 aus USA. 25%+ THC. Couch-Lock.'},
+  {id:'rqs-gel', n:'Gelato',                 b:'Royal Queen Seeds',tp:'photo-hybrid', thc:20,cbd:.1,yi:550, bl:8, d:'Mittel',    ac:'#f48fb1',p:'€€',  tp_:false,hi:false,terp:'Süß · Beeren · Zitrus · Sahne',   desc:'Bay Area Klassiker. Cremiges Terpenprofil.'},
+  {id:'rqs-run', n:'Runtz',                  b:'Royal Queen Seeds',tp:'photo-hybrid', thc:27,cbd:.1,yi:580, bl:9, d:'Fortgeschr.',ac:'#ce93d8',p:'€€€', tp_:false,hi:true, terp:'Süßigkeiten · Frucht · Sahne',    desc:'27% THC. Extremer Frost. Buntes Terpenprofil.'},
+  {id:'rqs-pq',  n:'Purple Queen',           b:'Royal Queen Seeds',tp:'photo-indica', thc:22,cbd:.1,yi:500, bl:9, d:'Einfach',   ac:'#9b51e0',p:'€€',  tp_:true, hi:false,terp:'Beeren · Traube · Zitrus · Erde', desc:'Zuverlässig lila. Kältestress-Protokoll ideal.'},
+  {id:'rqs-hc',  n:'Honey Cream',            b:'Royal Queen Seeds',tp:'photo-indica', thc:18,cbd:.5,yi:650, bl:9, d:'Einfach',   ac:'#f0c040',p:'€€',  tp_:false,hi:false,terp:'Honig · Sahne · Süß · Vanille',   desc:'Riesige Erträge, süßes Honig-Sahne-Aroma.'},
+  {id:'rqs-wc',  n:'Wedding Cake',           b:'Royal Queen Seeds',tp:'photo-hybrid', thc:24,cbd:.1,yi:575, bl:9, d:'Mittel',    ac:'#ffb74d',p:'€€€', tp_:false,hi:true, terp:'Vanille · Sahne · Gebäck',         desc:'Triangle Kush × Animal Mints.'},
+  {id:'rqs-bb',  n:'Blue Mystic',            b:'Royal Queen Seeds',tp:'photo-indica', thc:18,cbd:.1,yi:425, bl:9, d:'Einfach',   ac:'#64b5f6',p:'€€',  tp_:true, hi:false,terp:'Heidelbeere · Blaubeere · Süß',   desc:'Blueberry-Abstammung. Blaue Buds.'},
+  {id:'rqs-sd',  n:'Sour Diesel',            b:'Royal Queen Seeds',tp:'photo-sativa', thc:19,cbd:.2,yi:550, bl:11,d:'Mittel',    ac:'#ffcc02',p:'€€',  tp_:false,hi:false,terp:'Diesel · Zitrus · Erde · Kiefer',  desc:'NYC-Legende. Starker Diesel-Geruch.'},
+  {id:'rqs-sq',  n:'Sherbet Queen',          b:'Royal Queen Seeds',tp:'photo-hybrid', thc:24,cbd:.1,yi:525, bl:9, d:'Mittel',    ac:'#ff8a65',p:'€€€', tp_:false,hi:true, terp:'Beeren · Minze · Zitrus · Sahne',  desc:'Sunset Sherbet × Purple Punch.'},
+  {id:'rqs-crit',n:'Critical',              b:'Royal Queen Seeds',tp:'photo-hybrid', thc:18,cbd:.5,yi:700, bl:8, d:'Einfach',   ac:'#81c784',p:'€',   tp_:false,hi:false,terp:'Erde · Süß · Fruchtig · Holz',     desc:'Ertrag-Champion. Kurze Blüte.'},
+  {id:'rqs-sk',  n:'Skunk #1',              b:'Royal Queen Seeds',tp:'photo-hybrid', thc:17,cbd:.1,yi:500, bl:8, d:'Einfach',   ac:'#8d6e63',p:'€',   tp_:false,hi:false,terp:'Skunk · Erde · Süß · Holz',        desc:'Original-Klassiker seit den 80ern.'},
+  {id:'rqs-tg',  n:'Triple G',              b:'Royal Queen Seeds',tp:'photo-hybrid', thc:26,cbd:.1,yi:600, bl:9, d:'Fortgeschr.',ac:'#aed581',p:'€€€', tp_:true, hi:true, terp:'Schoko · Zitrus · Diesel',         desc:'GG4 × Gelato 33. 26% THC.'},
+  {id:'rqs-scbd',n:'Stress Killer CBD',     b:'Royal Queen Seeds',tp:'cbd',          thc:9, cbd:9, yi:475, bl:9, d:'Einfach',   ac:'#69f0ae',p:'€€',  tp_:false,hi:false,terp:'Zitrus · Limette · Süß',           desc:'1:1 THC/CBD. Entspannend.'},
+  {id:'rqs-nla', n:'Northern Lights Auto',  b:'Royal Queen Seeds',tp:'auto',         thc:14,cbd:.1,yi:425, bl:10,d:'Einfach',   ac:'#ffd54f',p:'€€',  tp_:false,hi:false,terp:'Süß · Erde · Holz',               desc:'NL als Auto. Hoher Auto-Ertrag.'},
+  {id:'rqs-ga',  n:'Gorilla Auto',          b:'Royal Queen Seeds',tp:'auto',         thc:18,cbd:.1,yi:475, bl:11,d:'Mittel',    ac:'#78909c',p:'€€',  tp_:false,hi:false,terp:'Kiefer · Erde · Diesel',           desc:'GG4 als Auto. Klebrig.'},
+  {id:'bf-lsd',  n:'LSD',                   b:"Barney's Farm",    tp:'photo-indica', thc:24,cbd:.1,yi:625, bl:9, d:'Mittel',    ac:'#7986cb',p:'€€',  tp_:false,hi:true, terp:'Erde · Süß · Würzig',              desc:'Cannabis Cup. Psychedelisch.'},
+  {id:'bf-wc',   n:'Wedding Cake',          b:"Barney's Farm",    tp:'photo-hybrid', thc:25,cbd:.1,yi:650, bl:10,d:'Fortgeschr.',ac:'#ffb74d',p:'€€€', tp_:false,hi:true, terp:'Vanille · Sahne · Gebäck',         desc:'Preisgekrönt. Extremer Ertrag.'},
+  {id:'bf-rm',   n:'Runtz Muffin',          b:"Barney's Farm",    tp:'photo-hybrid', thc:29,cbd:.1,yi:650, bl:10,d:'Fortgeschr.',ac:'#f06292',p:'€€€€',tp_:false,hi:true, terp:'Süßigkeiten · Frucht · Sahne',    desc:'29% THC! Cup-Gewinner.'},
+  {id:'bf-pc',   n:'Pineapple Chunk',       b:"Barney's Farm",    tp:'photo-indica', thc:20,cbd:.3,yi:650, bl:8, d:'Einfach',   ac:'#fdd835',p:'€€',  tp_:false,hi:false,terp:'Ananas · Käse · Tropisch',         desc:'Legendärer Ertrag. Ananas.'},
+  {id:'bf-me',   n:'Mimosa EVO',            b:"Barney's Farm",    tp:'photo-hybrid', thc:24,cbd:.3,yi:650, bl:9, d:'Mittel',    ac:'#ffa726',p:'€€€', tp_:false,hi:true, terp:'Orange · Zitrus · Blume',          desc:'Frischer Orangen-Zitrus.'},
+  {id:'bf-pp',   n:'Purple Punch',          b:"Barney's Farm",    tp:'photo-indica', thc:20,cbd:.3,yi:650, bl:9, d:'Einfach',   ac:'#9c27b0',p:'€€',  tp_:true, hi:false,terp:'Traube · Beeren · Vanille',        desc:'Intensiv lila. Beeren-Dessert.'},
+  {id:'bf-bc',   n:'Blue Cheese',           b:"Barney's Farm",    tp:'photo-indica', thc:20,cbd:.3,yi:550, bl:8, d:'Einfach',   ac:'#1e88e5',p:'€€',  tp_:true, hi:false,terp:'Käse · Heidelbeere · Sahne',       desc:'Blueberry × UK Cheese.'},
+  {id:'bf-ag',   n:'Acapulco Gold',         b:"Barney's Farm",    tp:'photo-sativa', thc:21,cbd:.1,yi:500, bl:11,d:'Fortgeschr.',ac:'#ffc107',p:'€€',  tp_:false,hi:false,terp:'Gold · Karamell · Frucht',         desc:'Mexikanische Sativa-Landrace.'},
+  {id:'bf-gca',  n:'Gorilla Cookies Auto',  b:"Barney's Farm",    tp:'auto',         thc:26,cbd:.1,yi:550, bl:10,d:'Mittel',    ac:'#8d6e63',p:'€€€', tp_:false,hi:true, terp:'Kekse · Erde · Diesel',            desc:'26% THC als Auto.'},
+  {id:'ss-nl5',  n:'Northern Lights #5',    b:'Sensi Seeds',      tp:'photo-indica', thc:19,cbd:.1,yi:550, bl:8, d:'Einfach',   ac:'#ffd54f',p:'€€',  tp_:false,hi:false,terp:'Holz · Harz · Süß · Erde',         desc:'Das Original. High Times HOF.'},
+  {id:'ss-jh',   n:'Jack Herer',            b:'Sensi Seeds',      tp:'photo-sativa', thc:18,cbd:.1,yi:475, bl:9, d:'Mittel',    ac:'#ffd54f',p:'€€',  tp_:false,hi:false,terp:'Kiefer · Erde · Würzig · Zitrus',  desc:'Cerebral, euphorisch.'},
+  {id:'ss-ssk',  n:'Super Skunk',           b:'Sensi Seeds',      tp:'photo-indica', thc:19,cbd:.3,yi:525, bl:8, d:'Einfach',   ac:'#8d6e63',p:'€',   tp_:false,hi:false,terp:'Skunk · Erde · Süß',               desc:'Massiver Ertrag, kurze Blüte.'},
+  {id:'ss-bib',  n:'Big Bud',               b:'Sensi Seeds',      tp:'photo-indica', thc:15,cbd:.3,yi:750, bl:8, d:'Einfach',   ac:'#a5d6a7',p:'€',   tp_:false,hi:false,terp:'Süß · Frucht · Erde',              desc:'Ertrag-Monster.'},
+  {id:'ss-hk',   n:'Hindu Kush',            b:'Sensi Seeds',      tp:'photo-indica', thc:20,cbd:.3,yi:425, bl:8, d:'Einfach',   ac:'#bcaaa4',p:'€€',  tp_:false,hi:false,terp:'Sandelholz · Erde · Kiefer',       desc:'Reine Landrace vom Hindukusch.'},
+  {id:'ss-dp',   n:'Durban Poison',         b:'Sensi Seeds',      tp:'photo-sativa', thc:20,cbd:.1,yi:425, bl:9, d:'Mittel',    ac:'#a5d6a7',p:'€€',  tp_:false,hi:false,terp:'Anis · Süß · Pfeffer · Zitrus',    desc:'Afrikanische Landrace.'},
+  {id:'dp-au',   n:'Auto Ultimate',         b:'Dutch Passion',    tp:'auto',         thc:20,cbd:.1,yi:200, bl:11,d:'Einfach',   ac:'#38bdf8',p:'€€',  tp_:false,hi:false,terp:'Süß · Tropisch · Kiefer',          desc:'Massive Auto-Erträge. 10–12 Wo.'},
+  {id:'dp-bl',   n:'Blueberry',             b:'Dutch Passion',    tp:'photo-indica', thc:17,cbd:.1,yi:425, bl:9, d:'Mittel',    ac:'#5e35b1',p:'€€',  tp_:true, hi:false,terp:'Heidelbeere · Vanille · Beeren',   desc:'DJ Short Blueberry. Lila Buds.'},
+  {id:'dp-pp',   n:'Power Plant',           b:'Dutch Passion',    tp:'photo-sativa', thc:20,cbd:.1,yi:575, bl:8, d:'Einfach',   ac:'#c5e1a5',p:'€€',  tp_:false,hi:false,terp:'Süß · Kräuter · Erde',             desc:'Reine Sativa aus Südafrika.'},
+  {id:'dp-cj',   n:'Cinderella Jack Auto',  b:'Dutch Passion',    tp:'auto',         thc:23,cbd:.1,yi:175, bl:12,d:'Mittel',    ac:'#f9a825',p:'€€€', tp_:false,hi:true, terp:'Kiefer · Zitrus · Haze',           desc:'Sehr hohe Potenz als Auto.'},
+  {id:'sw-gp',   n:'Green Poison',          b:'Sweet Seeds',      tp:'photo-indica', thc:18,cbd:.1,yi:575, bl:8, d:'Einfach',   ac:'#7cb342',p:'€',   tp_:false,hi:false,terp:'Süß · Frucht · Zitrus',            desc:'Bestseller. Kompakt, schnell.'},
+  {id:'sw-cma',  n:'Cream Mandarine XL Auto',b:'Sweet Seeds',     tp:'auto',         thc:16,cbd:.1,yi:575, bl:9, d:'Einfach',   ac:'#ff8f00',p:'€€',  tp_:false,hi:false,terp:'Mandarine · Sahne · Zitrus',       desc:'Riesige Auto-Erträge.'},
+  {id:'sw-bca',  n:'Black Cream Auto',      b:'Sweet Seeds',      tp:'auto',         thc:18,cbd:.1,yi:425, bl:9, d:'Einfach',   ac:'#212121',p:'€€',  tp_:true, hi:false,terp:'Beeren · Sahne · Frucht',          desc:'Dunkle Buds. Anthocyanine.'},
+  {id:'sw-cc',   n:'Crystal Candy',         b:'Sweet Seeds',      tp:'photo-hybrid', thc:18,cbd:.1,yi:575, bl:9, d:'Einfach',   ac:'#e1bee7',p:'€€',  tp_:false,hi:false,terp:'Süßigkeiten · Frucht · Sahne',     desc:'Süß wie Candy.'},
+  {id:'sw-grl',  n:'Cream Caramel',         b:'Sweet Seeds',      tp:'photo-indica', thc:18,cbd:.1,yi:650, bl:8, d:'Einfach',   ac:'#d7a373',p:'€',   tp_:false,hi:false,terp:'Karamell · Sahne · Vanille',       desc:'Riesiger Ertrag.'},
+  {id:'fb-gg',   n:'Gorilla Glue Auto',     b:'Fast Buds',        tp:'auto',         thc:24,cbd:.1,yi:550, bl:10,d:'Mittel',    ac:'#4ade80',p:'€€',  tp_:false,hi:true, terp:'Kiefer · Diesel · Erde',           desc:'24% THC als Auto! Flaggschiff.'},
+  {id:'fb-wca',  n:'Wedding Cheesecake Auto',b:'Fast Buds',       tp:'auto',         thc:22,cbd:.1,yi:500, bl:9, d:'Mittel',    ac:'#f9a825',p:'€€',  tp_:false,hi:false,terp:'Käse · Kekse · Sahne',             desc:'Wedding Cake × Cheese als Auto.'},
+  {id:'fb-bd',   n:'Blue Dream Auto',       b:'Fast Buds',        tp:'auto',         thc:20,cbd:.1,yi:500, bl:9, d:'Einfach',   ac:'#5c6bc0',p:'€€',  tp_:true, hi:false,terp:'Heidelbeere · Sahne · Kräuter',   desc:'West-Coast als Auto.'},
+  {id:'fb-sp',   n:'Strawberry Pie Auto',   b:'Fast Buds',        tp:'auto',         thc:22,cbd:.1,yi:450, bl:9, d:'Mittel',    ac:'#ef5350',p:'€€',  tp_:false,hi:false,terp:'Erdbeere · Sahne · Frucht',        desc:'Intensive Erdbeer-Sahne.'},
+  {id:'fb-la',   n:'Lemon AK Auto',         b:'Fast Buds',        tp:'auto',         thc:20,cbd:.1,yi:450, bl:9, d:'Einfach',   ac:'#fff176',p:'€',   tp_:false,hi:false,terp:'Zitrone · Würzig · Kiefer',        desc:'AK-47 × Lemon als Auto.'},
+  {id:'fb-mima', n:'Mimosa Auto',           b:'Fast Buds',        tp:'auto',         thc:22,cbd:.1,yi:450, bl:9, d:'Mittel',    ac:'#ffa726',p:'€€',  tp_:false,hi:false,terp:'Orange · Zitrus · Beeren',         desc:'Frischer Zitrus-Cocktail als Auto.'},
+  {id:'hsc-bd',  n:'Blue Dream',            b:'Humboldt Seed Co.',tp:'photo-hybrid', thc:21,cbd:.1,yi:550, bl:10,d:'Einfach',   ac:'#5c6bc0',p:'€€€', tp_:false,hi:false,terp:'Heidelbeere · Sahne · Kräuter',   desc:'West-Coast Original. Echtes Blue Dream.'},
+  {id:'hsc-bm',  n:'Blueberry Muffin',      b:'Humboldt Seed Co.',tp:'photo-indica', thc:20,cbd:.2,yi:475, bl:9, d:'Mittel',    ac:'#7986cb',p:'€€€', tp_:true, hi:false,terp:'Blaubeer-Muffin · Sahne · Vanille',desc:'Intensive Muffin-Aromen.'},
+  {id:'gh-ssh',  n:'Super Silver Haze',     b:'Greenhouse Seeds', tp:'photo-sativa', thc:21,cbd:.1,yi:800, bl:11,d:'Fortgeschr.',ac:'#c8e6c9',p:'€€',  tp_:false,hi:false,terp:'Haze · Zitrus · Kiefer',         desc:'3× Cannabis Cup.'},
+  {id:'gh-bb',   n:'Big Bang',              b:'Greenhouse Seeds', tp:'photo-hybrid', thc:16,cbd:.2,yi:850, bl:8, d:'Einfach',   ac:'#f8bbd0',p:'€',   tp_:false,hi:false,terp:'Süß · Frucht · Erde',             desc:'Extrem ertragreich.'},
+  {id:'hs-sm',   n:'Strawberry Marshmallow',b:'Happy Seeds',      tp:'photo-hybrid', thc:32,cbd:.1,yi:73,  bl:10,d:'Mittel',    ac:'#f472b6',p:'€€€€',tp_:true, hi:true, terp:'Erdbeere · Sahne · Marshmallow',  desc:'29–35% THC. Lila/Pink-Buds. Extremer Frost.'},
+  {id:'hs-ls',   n:'Lemon Sherbet',         b:'Happy Seeds',      tp:'photo-hybrid', thc:27,cbd:.1,yi:80,  bl:9, d:'Mittel',    ac:'#fff176',p:'€€€€',tp_:false,hi:true, terp:'Zitrone · Sherbet · Sahne',       desc:'Premium Cali-Zitrus.'},
+  {id:'dna-kk',  n:'Kosher Kush',           b:'DNA Genetics',     tp:'photo-indica', thc:24,cbd:.1,yi:475, bl:9, d:'Mittel',    ac:'#6a1b9a',p:'€€€', tp_:false,hi:true, terp:'Erde · Kiefer · Lemon',           desc:'Cannabis Cup Gewinner.'},
+  {id:'dna-ch',  n:'Chocolope',             b:'DNA Genetics',     tp:'photo-sativa', thc:21,cbd:.1,yi:650, bl:10,d:'Mittel',    ac:'#5d4037',p:'€€',  tp_:false,hi:false,terp:'Schokolade · Kaffee · Süß',       desc:'Schokoladen-Kaffee-Combo.'},
+  {id:'mg-3bo',  n:'3 Bears OG Auto',       b:'Mephisto Genetics',tp:'auto',         thc:22,cbd:.1,yi:150, bl:10,d:'Mittel',    ac:'#8d6e63',p:'€€€', tp_:false,hi:false,terp:'OG · Erde · Kiefer',              desc:'Mephisto Flaggschiff.'},
+  {id:'mg-fs',   n:'Forum Stomper Auto',    b:'Mephisto Genetics',tp:'auto',         thc:24,cbd:.1,yi:160, bl:10,d:'Mittel',    ac:'#9c27b0',p:'€€€', tp_:true, hi:true, terp:'Traube · Beeren · Erde',          desc:'Forum Cut GSC als Auto.'},
+  {id:'eg-pm',   n:'Permanent Marker',      b:'Exotic Genetix',   tp:'photo-hybrid', thc:28,cbd:.1,yi:450, bl:9, d:'Fortgeschr.',ac:'#37474f',p:'€€€€',tp_:false,hi:true, terp:'Marker · Chem · Würzig',          desc:'28% THC. US-Boutique.'},
+  {id:'cbd-cc',  n:'CBD Critical Cure',     b:"Barney's Farm",    tp:'cbd',          thc:6, cbd:8, yi:575, bl:8, d:'Einfach',   ac:'#69f0ae',p:'€€',  tp_:false,hi:false,terp:'Kiefer · Erde · Süß',             desc:'1:1 CBD/THC.'},
+  {id:'cbd-pk',  n:'Painkiller XL',         b:'Royal Queen Seeds',tp:'cbd',          thc:9, cbd:9, yi:525, bl:9, d:'Einfach',   ac:'#a5d6a7',p:'€€',  tp_:false,hi:false,terp:'Erdbeere · Süß · Frucht',         desc:'RQS CBD-Sorte. Medizinisch.'},
+];
+/* ══ Nutrients ══ */
+const NUTS=[
+  {k:'bg',l:'Bio·Grow',   c:'#4ade80',max:4},
+  {k:'bb',l:'Bio·Bloom',  c:'#f472b6',max:5},
+  {k:'tm',l:'Top·Max',    c:'#fb923c',max:4},
+  {k:'rj',l:'Root·Juice', c:'#a78bfa',max:4},
+  {k:'am',l:'Alg·A·Mic',  c:'#38bdf8',max:4},
+  {k:'tp',l:'Terpinator', c:'#ffd700',max:3},
+  {k:'mo',l:'Molasse',    c:'#cd853f',max:2},
+];
+/* ══ Growplan Generator ══ */
+function genPlan(strain,setup){
+  const isA=strain.tp==='auto',isSat=strain.tp==='photo-sativa',hiT=strain.thc>=24,isC=strain.tp_;
+  const bl=Math.max(strain.bl||9,7);
+  const lampTip=setup.lampType==='hps'?'⚠️ HPS: mehr Hitze — Temp. und VPD genauer überwachen.':setup.lampType==='cmh'?'☀️ CMH/LEC: natürliches UV — weniger künstliche UVB-Lampe nötig.':'💡 LED: Dimming in früher Vegetation auf 60–70% empfohlen.';
+  const medNote=setup.medium.includes('coco')?'⚠️ Coco: täglich gießen. EC und pH strenger kontrollieren.':setup.medium==='hydro'?'⚠️ Hydro: EC täglich messen. pH 5.5–5.8.':setup.medium==='living-soil'?'🌱 Living Soil: weniger externe Nährstoffe nötig!':'✅ BioBizz-Erde ideal für organische Nährstoffe.';
+  const trainTip=setup.train==='scrog'?'SCROG-Netz auf 35cm aufbauen. Triebe einwebben.':setup.train==='topping'?'Topping ab Node 5. Schere sterilisieren.':setup.train==='none'?'Kein Training — Natural-Grow.':'LST: Haupttrieb sanft seitwärts biegen.';
+  const tempProto=isA?[
+    {ph:'Keimung bis Ernte',val:'Tag 24°C · Nacht 18–20°C',col:'#38bdf8'},
+    {ph:`${setup.watt}W ${setup.lampType.toUpperCase()}`,val:'18–20h Licht — kein Flip!',col:'#ffd700'},
+  ]:[
+    {ph:isSat?'Veg bis Blüte W3':'Veg bis Blüte W2',val:'Tag 24°C · Nacht 20°C',col:'#6b7280'},
+    {ph:'Blüte W3',val:'Tag 23°C · Nacht 18°C',col:'#818cf8'},
+    ...(isC?[
+      {ph:'Blüte W4',val:'Tag 22°C · Nacht 15°C',col:'#a78bfa'},
+      {ph:'Blüte W5',val:'Tag 22°C · Nacht 13°C',col:'#c084fc'},
+      {ph:'Blüte W6–Flush',val:'Tag 21°C · Nacht 12°C ✓',col:strain.ac},
+      {ph:'Letztes Wasser',val:'Einmalig 4°C — Terpenkick 🔥',col:'#38bdf8'},
+    ]:[
+      {ph:'Blüte W4–Ende',val:'Tag 22°C · Nacht 18°C',col:'#fbbf24'},
+      {ph:'Flush',val:'Tag 20°C · Nacht 16°C',col:'#38bdf8'},
+    ]),
+  ];
+  let weeks=[];
+  if(isA){
+    weeks=[
+      {w:1,ph:'Keimung',ico:'🌱',td:'26°C',tn:'—',li:'Dunkel',rh:'80%',sp:[],nuts:{bg:0,bb:0,tm:0,rj:0,am:0,tp:0,mo:0},tip:`Direktsaat in ${setup.pot==='fabric'?'Fabric':setup.pot+'L'} — Auto NIEMALS umpflanzen! ${medNote}`},
+      {w:2,ph:'Sämling',ico:'🌿',td:'24°C',tn:'20°C',li:'20h',rh:'70%',sp:['20h LICHT'],nuts:{bg:0,bb:0,tm:0,rj:1,am:0,tp:0,mo:0},tip:`20h Licht. ${lampTip} Sehr sanft bewässern.`},
+      {w:3,ph:'Vegetation',ico:'🌿',td:'24°C',tn:'20°C',li:'20h',rh:'65%',sp:['SANFTES LST'],nuts:{bg:1,bb:0,tm:0,rj:2,am:0,tp:0,mo:0},tip:'Sanftes LST — kein Topping! Auto hat keine Zeit zur Erholung.'},
+      {w:4,ph:'Vorblüte',ico:'🌺',td:'24°C',tn:'20°C',li:'18h',rh:'60%',sp:['VORBLÜTE'],nuts:{bg:1,bb:1,tm:0,rj:1,am:0,tp:0,mo:0},tip:'Auto blüht selbst. Licht auf 18h. Bio·Bloom einführen.'},
+      {w:5,ph:'Blüte — Woche 1',ico:'🌸',td:'23°C',tn:'19°C',li:'18h',rh:'55%',sp:[],nuts:{bg:0,bb:2,tm:1,rj:0,am:0,tp:0,mo:0},tip:'Erste Blüten. Bio·Bloom erhöhen.'},
+      {w:6,ph:'Blüte — Woche 2',ico:'🌸',td:'23°C',tn:'18°C',li:'18h',rh:'50%',sp:[],nuts:{bg:0,bb:3,tm:2,rj:0,am:0,tp:0,mo:0},tip:'Buds entwickeln sich. RH kontrollieren.'},
+      {w:7,ph:'Blüte — Woche 3',ico:'💫',td:'22°C',tn:'18°C',li:'18h',rh:'46%',sp:[],nuts:{bg:0,bb:4,tm:3,rj:0,am:0,tp:hiT?2:0,mo:hiT?1:0},tip:hiT?'Terpinator + Molasse starten!':'Massiver Bud-Aufbau.'},
+      {w:8,ph:'Blüte — Woche 4',ico:'💎',td:'22°C',tn:'18°C',li:'18h',rh:'42%',sp:['TRICHOM-CHECK'],nuts:{bg:0,bb:4,tm:3,rj:0,am:1,tp:hiT?2.5:0,mo:hiT?1:0},tip:'Trichome unter Lupe: milchig-trüb = fast fertig.'},
+      {w:9,ph:'Blüte — Woche 5',ico:'🔥',td:'21°C',tn:'18°C',li:'18h',rh:'38%',sp:['AMBER CHECK'],nuts:{bg:0,bb:3,tm:2,rj:0,am:1,tp:hiT?2:0,mo:hiT?1:0},tip:'Amber-Trichome. Keine neuen Nährstoffe mehr.'},
+      {w:10,ph:'Flush + Ernte',ico:'🌑',td:'20°C',tn:'17°C',li:'18h→0h',rh:'35%',sp:['FLUSH','48h DUNKEL','ERNTEN!'],nuts:{bg:0,bb:0,tm:0,rj:0,am:0,tp:0,mo:0},tip:`${parseInt(setup.pot)*3}L Spülvolumen. 48h Dunkel. Sofort ernten!`},
+    ];
+  }else{
+    const ev=isSat?1:0,fw=5+ev,bs=fw+1;
+    const veg=[
+      {w:1,ph:'Keimung',ico:'🌱',td:'26°C',tn:'—',li:'Dunkel',rh:'80%',sp:[],nuts:{bg:0,bb:0,tm:0,rj:0,am:0,tp:0,mo:0},tip:'Glas → Paper Towel → Erde. Keimwurzel bei 1 cm einpflanzen.'},
+      {w:2,ph:'Sämling',ico:'🌿',td:'24°C',tn:'20°C',li:'18h',rh:'70%',sp:[],nuts:{bg:0,bb:0,tm:0,rj:1,am:0,tp:0,mo:0},tip:`Nur sprühen. ${lampTip} ${medNote}`},
+      {w:3,ph:'Vegetation',ico:'🌿',td:'24°C',tn:'20°C',li:'18h',rh:'60%',sp:['LST / TRAINING'],nuts:{bg:1,bb:0,tm:0,rj:2,am:1,tp:0,mo:0},tip:trainTip},
+      {w:4,ph:'Vegetation',ico:'🌿',td:'24°C',tn:'20°C',li:'18h',rh:'55%',sp:['LST AGGRESSIV'],nuts:{bg:2,bb:0,tm:0,rj:2,am:1,tp:0,mo:0},tip:'Alle Triebe ausbreiten. Ziel: flacher Baldachin.'},
+    ];
+    if(ev)veg.push({w:5,ph:'Vegetation (extra)',ico:'🌿',td:'24°C',tn:'20°C',li:'18h',rh:'52%',sp:['TOPPING OPTIONAL'],nuts:{bg:2,bb:0,tm:0,rj:1,am:1,tp:0,mo:0},tip:'Sativa braucht mehr Veg-Zeit.'});
+    weeks.push(...veg);
+    weeks.push({w:fw,ph:'Flip auf 12/12',ico:'⚡',td:'24°C',tn:'20°C',li:'12/12',rh:'50%',sp:['LICHT-FLIP','LOLLIPOPPING'],nuts:{bg:1,bb:1,tm:0,rj:1,am:1,tp:0,mo:0},tip:`Licht auf 12/12. ${setup.watt}W ${setup.lampType.toUpperCase()} auf 100%. Lollipopping: alles unterhalb ⅓ entfernen.`});
+    for(let i=1;i<=bl;i++){
+      const wn=bs+i-1;
+      let tn=i>=6?'12°C':i>=5?'13°C':i>=4?'15°C':i>=3?'18°C':'20°C';
+      if(!isC)tn=i>=3?'18°C':'20°C';
+      let nuts={bg:0,bb:0,tm:0,rj:0,am:0,tp:0,mo:0};
+      if(i===1)nuts={bg:0,bb:2,tm:1,rj:0,am:1,tp:0,mo:0};
+      else if(i===2)nuts={bg:0,bb:3,tm:2,rj:0,am:1,tp:0,mo:0};
+      else if(i===3)nuts={bg:0,bb:4,tm:3,rj:0,am:1,tp:hiT?2:0,mo:hiT?1:0};
+      else if(i<=Math.floor(bl*.65))nuts={bg:0,bb:4,tm:3,rj:0,am:0,tp:hiT?3:0,mo:hiT?1.5:0};
+      else if(i===bl-1)nuts={bg:0,bb:2,tm:0,rj:0,am:2,tp:hiT?2:0,mo:hiT?1:0};
+      else nuts={bg:0,bb:3,tm:2,rj:0,am:1,tp:hiT?2.5:0,mo:hiT?1.5:0};
+      const sp=[];
+      if(i===1)sp.push('DEFOLIIERUNG');
+      if(i===3&&hiT){sp.push('TERPINATOR START');sp.push('MOLASSE START');}
+      if(isC&&i>=4&&i<=5)sp.push(`NACHT: ${tn}`);
+      if(isC&&i>=Math.floor(bl*.55))sp.push('UVB: 4h/Tag');
+      if(i===Math.floor(bl*.7))sp.push('TRICHOM-CHECK');
+      if(i===bl-1)sp.push('AMBER CHECK');
+      const ico=i>=bl-1?'🔥':i>=Math.floor(bl*.5)?(isC?'💜':'💎'):'🌸';
+      let tip='';
+      if(i===1)tip='Erste Pistillen. Defoliierung. LED auf 100%.';
+      else if(i===2)tip='Buds formen sich. Zweite Defoliierung möglich.';
+      else if(i===3)tip=hiT?'Terpinator + Molasse für maximales Terpenprofil!':'Buds bauen sich auf.';
+      else if(isC&&i>=4)tip=`Nacht auf ${tn} — Anthocyanin-Trigger! Trichom-Overdrive.`;
+      else if(i>=Math.floor(bl*.6))tip='Trichome prüfen. Milchig = fast fertig.';
+      else if(i===bl-1)tip='20–30% Amber anpeilen.';
+      else tip='Buds reifen. RH unter 42%.';
+      weeks.push({w:wn,ph:`Blüte — Woche ${i}`,ico,td:i>=bl-2?'21°C':i>=3?'22°C':'24°C',tn,li:'12h',rh:i>=bl-2?'35%':i>=3?'40%':'48%',sp,nuts,tip});
+    }
+    const fv=bs+bl,hv=fv+1;
+    weeks.push({w:fv,ph:'Flush',ico:'🚿',td:'20°C',tn:isC?'12°C':'16°C',li:'12h',rh:'35%',sp:['NUR pH-WASSER'],nuts:{bg:0,bb:0,tm:0,rj:0,am:0,tp:0,mo:0},tip:`Nur pH-Wasser. ${setup.pot==='fabric'?'Fabric':setup.pot+'L'} × 3 = ${parseInt(setup.pot)*3}L spülen.`});
+    weeks.push({w:hv,ph:'72h Dunkel + Ernte',ico:'🌑',td:'18°C',tn:isC?'12°C':'14°C',li:'→ 0h',rh:'35%',sp:['4°C WASSER','72h DUNKEL','ERNTEN!'],nuts:{bg:0,bb:0,tm:0,rj:0,am:0,tp:0,mo:0},tip:'Letztes Wasser bei 4°C — Terpenkick! 72h Totaldunkel. Sofort ernten.'});
+  }
+  return{weeks,tempProto,lampTip,medNote};
+}
+/* ══ Yield Calculator ══ */
+function calcYield(strain,setup){
+  if(!strain)return{n:'— g',note:'Bitte Sorte auswählen'};
+  let base=strain.yi||60;
+  const isA=strain.tp==='auto';
+  const m2={'60x60':.36,'80x80':.64,'100x100':1,'120x120':1.44,'120x60':.72,'240x120':2.88}[setup.tent]||.36;
+  let est=isA?base:Math.round(base*m2);
+  est=Math.round(est*({led:1,cmh:1.08,hps:.92}[setup.lampType]||1));
+  est=Math.round(est*({'7':.7,'11':.88,'15':1,'20':1.1,'25':1.18,'fabric':1.12}[setup.pot]||1));
+  est=Math.round(est*({'soil-light':1,'soil-all':1.05,'coco':1.15,'hydro':1.25,'coco-perlite':1.18,'living-soil':1.02,'soil-plagron':1}[setup.medium]||1));
+  est=Math.round(est*({lst:1.15,scrog:1.25,topping:1.1,none:.85}[setup.train]||1));
+  return{n:`~${est}g`,note:isA?`${Math.round(est*.8)}–${Math.round(est*1.25)} g/Pflanze`:`${Math.round(est*.7)}–${est} g/m²`};
+}
+/* ══ KONFIGURATOR ══ */
+function renderKonfig(){
+  const sel=document.getElementById('strainSel');
+  if(!sel)return;
+  const cur=sel.value;
+  sel.innerHTML='<option value="">-- Sorte wählen --</option>';
+  [...STRAINS].sort((a,b)=>a.n.localeCompare(b.n)).forEach(s=>{
+    const o=document.createElement('option');
+    o.value=s.id;o.textContent=`${s.n} — ${s.b} (${s.thc}% THC)`;
+    if(S.strain&&S.strain.id===s.id)o.selected=true;
+    sel.appendChild(o);
+  });
+  updateYield();
+  if(S.strain)drawPlan();
+}
+function updateYield(){
+  const yd=calcYield(S.strain,S.setup);
+  const n=document.getElementById('ynNum'),note=document.getElementById('ynNote');
+  if(n)n.textContent=yd.n;if(note)note.textContent=yd.note;
+}
+function drawPlan(){
+  const po=document.getElementById('planOut');if(!po)return;
+  if(!S.strain){po.innerHTML=`<div style="background:var(--s);border:1.5px solid var(--b);border-radius:22px;padding:3rem 2.5rem;text-align:center;"><div style="font-size:3rem;margin-bottom:1rem;">⚙️</div><div style="font-family:var(--fh);font-size:1.4rem;font-weight:900;color:var(--g);margin-bottom:.6rem;" data-i="cfg_empty_t">Setup konfigurieren</div><p style="color:var(--t2);font-size:.9rem;margin-bottom:1.5rem;" data-i="cfg_empty_d">Wähle links deine Sorte.</p></div>`;return;}
+  const s=S.strain,plan=genPlan(s,S.setup),ac=s.ac;
+  const tm={'photo-indica':'Indica · Photoperiod','photo-sativa':'Sativa · Photoperiod','photo-hybrid':'Hybrid · Photoperiod','auto':'Autoflower','cbd':'CBD · Photoperiod'};
+  const sl={'60x60':'60×60','80x80':'80×80','100x100':'100×100','120x120':'120×120','120x60':'120×60','240x120':'240×120'};
+  const ml={'soil-light':'BioBizz Light-Mix','soil-all':'BioBizz All-Mix','coco':'Kokoserde','hydro':'Hydroponik','coco-perlite':'Coco+Perlite','living-soil':'Living Soil','soil-plagron':'Plagron'};
+  const nl={'biobizz':'BioBizz','canna':'Canna','advanced':'Advanced','plagron':'Plagron'};
+  const trl={'lst':'LST','scrog':'SCROG','topping':'Topping','none':'Natural'};
+  const yd=calcYield(s,S.setup);
+  const tpHtml=plan.tempProto.map(r=>`<div class="tb-cell"><div class="tb-ph">${r.ph}</div><div class="tb-val" style="color:${r.col};">${r.val}</div></div>`).join('');
+  const wHtml=plan.weeks.map((w,i)=>{
+    const tags=w.sp.map(sp=>`<span class="pill pill-sm" style="color:${ac};border-color:${ac}44;background:${ac}14;">${sp}</span>`).join('');
+    const active=NUTS.filter(n=>w.nuts[n.k]>0);
+    const nbars=NUTS.map(n=>{
+      const v=w.nuts[n.k],a=v>0,pct=a?Math.min((v/n.max)*100,100):0;
+      return `<div class="nrow"><div class="nrow-h"><span class="nnm" style="color:${a?'#d1d5db':'#374151'}">${n.l}</span><span class="nval" style="color:${a?n.c:'#374151'}">${a?v+' ml/L':'—'}</span></div><div class="nt"><div class="nf" style="width:${pct}%;background:linear-gradient(90deg,${n.c}88,${n.c});box-shadow:${a?'0 0 8px '+n.c+'44':'none'};" role="progressbar" aria-valuenow="${v}" aria-valuemin="0" aria-valuemax="${n.max}" aria-label="${n.l}:${a?v+' ml/L':'inaktiv'}"></div></div></div>`;
+    }).join('');
+    return `<div class="wk" id="wki${i}">
+      <button class="wk-btn" aria-expanded="false" aria-controls="wkb${i}" style="border-left:4px solid ${ac};">
+        <div class="wnum" style="background:${ac}14;border:2px solid ${ac}44;color:${ac};"><span class="wi">${w.ico}</span><span class="wt">W${w.w}</span></div>
+        <div class="winfo">
+          <div class="wph">${w.ph}</div>
+          ${tags?`<div class="wtags">${tags}</div>`:''}
+          <div class="wenv"><span>💡 <strong>${w.li}</strong></span><span>☀️ <strong>${w.td}</strong></span><span>🌙 <strong>${w.tn}</strong></span><span>💧 <strong>${w.rh}</strong></span></div>
+        </div>
+        <div class="wnc"><div class="wnci" style="color:${ac};text-shadow:0 0 10px ${ac}66;">${active.length||'—'}</div><div class="wncl">Dünger</div></div>
+        <div class="wchev" aria-hidden="true">↓</div>
+      </button>
+      <div class="wbody" id="wkb${i}" role="region">
+        <div class="tip-c"><div class="tip-l" style="color:${ac};">${t('profi_tip')}</div>${w.tip}</div>
+        <div class="nut-l">${t('nutrients')} — ${S.setup.watt}W ${S.setup.lampType.toUpperCase()}</div>
+        <div>${nbars}</div>
+      </div>
+    </div>`;
+  }).join('');
+  const phH=[
+    {i:'✂️',c:'#4ade80',t:'Wet-Trim',d:'Grobes Blattwerk entfernen. Buds am Ast lassen. Trichome NIE berühren.'},
+    {i:'🌬️',c:'#38bdf8',t:'Trocknung 14–21 Tage',d:'15–18°C · 55–60% RH · dunkel · leichte Luftbewegung. Kein Direktluftzug.'},
+    {i:'✋',c:'#a78bfa',t:'Dry-Trim',d:'Erst nach vollständiger Trocknung trimmen. Trichome sind dann fester.'},
+    {i:'🫙',c:'#ffd700',t:'Curing 6–8 Wochen',d:'Sealed Glass Jars · 62% Boveda · 18°C · dunkel. 2×/Tag lüften (2 Wochen). Terpenprofil entfaltet sich HIER.'},
+  ];
+  po.innerHTML=`<div class="plan">
+    <div class="plan-hero">
+      <div class="plan-grid-bg" aria-hidden="true"></div>
+      <div style="position:relative;">
+        <p style="font-family:var(--fm);font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:${ac};margin-bottom:.5rem;display:flex;align-items:center;gap:.4rem;"><span style="width:18px;height:1.5px;background:${ac};display:inline-block;"></span>Growplan</p>
+        <div class="plan-nm">${s.n}</div>
+        <div class="plan-badges">
+          <span class="pill" style="color:${ac};border-color:${ac}44;background:${ac}14;">${tm[s.tp]||s.tp}</span>
+          <span class="pill" style="color:#ffd700;border-color:#ffd70044;background:#ffd70014;">${s.b}</span>
+          <span class="pill" style="color:#4ade80;border-color:#4ade8044;background:#4ade8014;">🎯 ${yd.n} erwartet</span>
+        </div>
+        <div class="plan-stats">
+          ${[['THC',s.thc+'%',ac],['CBD',s.cbd+'%','#4ade80'],['Ertrag',s.yi+(s.tp==='auto'?'g/Pfl':'g/m²'),'#ffd700'],['Blüte',s.bl+' Wo','#38bdf8'],['Level',s.d,'#fb923c']].map(([l,v,c])=>`<div class="pstat" style="border-color:${c}33;"><div class="pstat-l">${l}</div><div class="pstat-v" style="color:${c};">${v}</div></div>`).join('')}
+        </div>
+        <div class="plan-desc">${s.desc}</div>
+        <div class="plan-terp">${s.terp}</div>
+      </div>
+    </div>
+    <div class="setup-bar">
+      <div style="font-family:var(--fh);font-size:.88rem;font-weight:700;color:var(--g);white-space:nowrap;">⚙️ DEIN SETUP:</div>
+      ${[['⛺','Zelt',sl[S.setup.tent]||S.setup.tent],['💡','Lampe',S.setup.watt+'W '+S.setup.lampType.toUpperCase()],['🪴','Topf',S.setup.pot==='fabric'?'Fabric':S.setup.pot+'L'],['🌱','Medium',ml[S.setup.medium]||S.setup.medium],['🧪','Nährstoffe',nl[S.setup.nuts]||S.setup.nuts],['✂️','Training',trl[S.setup.train]||S.setup.train]].map(([ic,l,v])=>`<div class="si-item"><span class="si-ico">${ic}</span><div><div class="si-l">${l}</div><div class="si-v">${v}</div></div></div>`).join('')}
+    </div>
+    <div class="tb">
+      <div class="tb-hd">🌡️ Temperatur-Protokoll — Farbe, Frost & Terpene maximieren</div>
+      <div class="tb-grid">${tpHtml}</div>
+      <div style="margin-top:.7rem;font-family:var(--fm);font-size:.68rem;color:rgba(255,26,58,.8);">${plan.lampTip}</div>
+      <div style="margin-top:.28rem;font-family:var(--fm);font-size:.68rem;color:var(--t3);">${plan.medNote}</div>
+    </div>
+    <div class="wks-wrap">
+      <div class="wks-lbl">Wochenplan</div>
+      <div class="wk-list">${wHtml}</div>
+      <div class="phwrap">
+        <div class="ph-title">🏆 Post-Harvest Protokoll</div>
+        <div class="ph-steps">${phH.map(p=>`<div class="ph-step"><div class="ph-ico" style="background:${p.c}14;border:1.5px solid ${p.c}44;">${p.i}</div><div><div class="ph-t" style="color:${p.c};">${p.t}</div><div class="ph-d">${p.d}</div></div></div>`).join('')}</div>
+      </div>
+    </div>
+  </div>`;
+  po.querySelectorAll('.wk-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const item=btn.closest('.wk');const o=item.classList.toggle('open');
+      btn.setAttribute('aria-expanded',o);
+      if(o)setTimeout(()=>item.scrollIntoView({behavior:'smooth',block:'nearest'}),55);
+    });
+  });
+}
+/* ══ Config events ══ */
+function initCfgEvents(){
+  document.getElementById('strainSel')?.addEventListener('change',e=>{
+    S.strain=STRAINS.find(s=>s.id===e.target.value)||null;
+    const v=document.getElementById('cfpStrainVal');
+    if(v)v.textContent=S.strain?S.strain.n:t('cfg_str')+' — keine';
+    updateYield();drawPlan();
+  });
+  document.addEventListener('click',e=>{
+    const opt=e.target.closest('.opt[data-g]');if(!opt)return;
+    const g=opt.dataset.g,v=opt.dataset.v;
+    document.querySelectorAll(`.opt[data-g="${g}"]`).forEach(o=>{o.classList.remove('sel');o.setAttribute('aria-checked','false');});
+    opt.classList.add('sel');opt.setAttribute('aria-checked','true');
+    if(g==='tent'){S.setup.tent=v;const el=document.getElementById('cfpTentVal');if(el)el.textContent=({'60x60':'60×60','80x80':'80×80','100x100':'100×100','120x120':'120×120','120x60':'120×60','240x120':'240×120'}[v]||v)+' cm';}
+    if(g==='lamp'){S.setup.lampType=v;updatePPFD();}
+    if(g==='pot'){S.setup.pot=v;updatePotVal();}
+    if(g==='nuts'){S.setup.nuts=v;const el=document.getElementById('cfpNutVal');if(el)el.textContent={'biobizz':'BioBizz Komplett','canna':'Canna','advanced':'Advanced Nutrients','plagron':'Plagron'}[v]||v;}
+    if(g==='train'){S.setup.train=v;const el=document.getElementById('cfpTrainVal');if(el)el.textContent={'lst':'LST + Lollipopping','scrog':'SCROG (Netz)','topping':'Topping + LST','none':'Natural'}[v]||v;}
+    updateYield();if(S.strain)drawPlan();
+  });
+  const tentH=document.getElementById('tentH');
+  if(tentH)tentH.addEventListener('input',e=>{S.setup.height=+e.target.value;const el=document.getElementById('thVal');if(el)el.textContent=e.target.value+' cm';setRngPct(e.target);});
+  const lampW=document.getElementById('lampW');
+  if(lampW)lampW.addEventListener('input',e=>{S.setup.watt=+e.target.value;const el=document.getElementById('wattVal');if(el)el.textContent=e.target.value+'W';setRngPct(e.target);updatePPFD();updateYield();if(S.strain)drawPlan();});
+  document.getElementById('medSel')?.addEventListener('change',e=>{S.setup.medium=e.target.value;updatePotVal();updateYield();if(S.strain)drawPlan();});
+  document.querySelectorAll('.opt[data-g]').forEach(o=>o.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();o.click();}}));
+}
+function setRngPct(inp){const mn=+inp.min,mx=+inp.max,v=+inp.value;inp.style.setProperty('--pct',((v-mn)/(mx-mn)*100).toFixed(1)+'%');}
+function updatePPFD(){const el=document.getElementById('ppfd');if(!el)return;const w=S.setup.watt,lt=S.setup.lampType;const ppfd=lt==='led'?Math.round(w*1.8):lt==='cmh'?Math.round(w*1.4):Math.round(w*1.2);el.textContent=`⚡ Geschätzte PPFD: ~${Math.round(ppfd*.6)}–${ppfd} µmol/m²/s`;}
+function updatePotVal(){const el=document.getElementById('cfpPotVal');if(!el)return;const ml={'soil-light':'BioBizz LM','soil-all':'BioBizz AM','coco':'Coco','hydro':'Hydro','coco-perlite':'Coco+Perl','living-soil':'Living Soil','soil-plagron':'Plagron'};el.textContent=(S.setup.pot==='fabric'?'Fabric':S.setup.pot+'L')+' · '+(ml[S.setup.medium]||S.setup.medium);}
+/* ══ STRAINS ══ */
+function updateCounts(){
+  const c={all:0,photo:0,auto:0,indica:0,sativa:0,hybrid:0,cbd:0};
+  STRAINS.forEach(s=>{c.all++;if(s.tp!=='auto'&&s.tp!=='cbd')c.photo++;if(s.tp==='auto')c.auto++;if(s.tp==='photo-indica')c.indica++;if(s.tp==='photo-sativa')c.sativa++;if(s.tp==='photo-hybrid')c.hybrid++;if(s.tp==='cbd')c.cbd++;});
+  Object.entries(c).forEach(([k,v])=>{const el=document.getElementById('cnt-'+k);if(el)el.textContent=v;});
+}
+function renderSorten(){
+  updateCounts();
+  const q=S.strQ.toLowerCase(),f=S.strF;
+  const fil=STRAINS.filter(s=>{
+    const mQ=!q||s.n.toLowerCase().includes(q)||s.b.toLowerCase().includes(q)||(s.terp||'').toLowerCase().includes(q)||(s.desc||'').toLowerCase().includes(q);
+    const mF=f==='all'?true:f==='photo'?s.tp!=='auto'&&s.tp!=='cbd':f==='auto'?s.tp==='auto':f==='indica'?s.tp==='photo-indica':f==='sativa'?s.tp==='photo-sativa':f==='hybrid'?s.tp==='photo-hybrid':f==='cbd'?s.tp==='cbd':f==='easy'?s.d==='Einfach':f==='cheap'?s.p==='€':f==='premium'?s.p==='€€€€':f==='highthc'?s.thc>=25:f==='color'?s.tp_:true;
+    return mQ&&mF;
+  });
+  const ce=document.getElementById('strCount');if(ce)ce.innerHTML=`<strong>${fil.length}</strong> Sorten${q?` · "${q}"`:''} gefunden`;
+  const grid=document.getElementById('strGrid');if(!grid)return;
+  if(!fil.length){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:4rem 0;color:var(--t3);"><div style="font-size:3rem;margin-bottom:.75rem;">🔍</div><p>Keine Sorten für "${q}"</p></div>`;return;}
+  const tm2={'photo-indica':'Indica','photo-sativa':'Sativa','photo-hybrid':'Hybrid','auto':'Auto','cbd':'CBD'};
+  const dc={'Einfach':'#4ade80','Mittel':'#ffd700','Fortgeschr.':'#fb923c','Experte':'#f87171'};
+  grid.innerHTML=fil.map(s=>`
+    <article class="sc" role="listitem" tabindex="0" data-id="${s.id}" style="border-left:4px solid ${s.ac};" aria-label="${s.n} von ${s.b}">
+      <div class="sc-bar" style="background:linear-gradient(90deg,${s.ac},${s.ac}66);"></div>
+      <div class="sc-head">
+        <div class="sc-tr">
+          <span class="pill pill-sm" style="color:${s.ac};border-color:${s.ac}44;background:${s.ac}14;">${tm2[s.tp]||s.tp}</span>
+          <span style="font-size:.7rem;font-weight:700;color:${s.p==='€'?'#4ade80':s.p==='€€€€'?'#ff1a3a':'var(--t3)'};">${s.p}</span>
+        </div>
+        <div class="sc-nm" style="color:${s.ac};">${s.n}</div>
+        <div class="sc-br">${s.b}</div>
+        <div class="sc-sts">
+          <div class="sc-s"><div class="sc-sl">THC</div><div class="sc-sv" style="color:${s.ac};">${s.thc}%</div></div>
+          <div class="sc-s"><div class="sc-sl">Blüte</div><div class="sc-sv">${s.bl}W</div></div>
+          <div class="sc-s"><div class="sc-sl">Ertrag</div><div class="sc-sv">${s.yi}${s.tp==='auto'?'g':'g/m²'}</div></div>
+          <div class="sc-s"><div class="sc-sl">CBD</div><div class="sc-sv">${s.cbd}%</div></div>
+          <div class="sc-s"><div class="sc-sl">Level</div><div class="sc-sv" style="color:${dc[s.d]||'#6b7280'};">${s.d}</div></div>
+          <div class="sc-s"><div class="sc-sl">Preis</div><div class="sc-sv">${s.p}</div></div>
+        </div>
+      </div>
+      <div class="sc-ft">
+        <span class="sc-tp">${s.terp}</span>
+        <span class="sc-go" style="color:${s.ac};">Growplan →</span>
+      </div>
+    </article>`).join('');
+  grid.querySelectorAll('.sc').forEach(card=>{
+    const open=()=>{S.strain=STRAINS.find(s=>s.id===card.dataset.id);go('konfig');};
+    card.addEventListener('click',open);
+    card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}});
+  });
+}
+/* ══ SHOPS ══ */
+const SHOPS=[
+  {n:'FARMBROS',c:'Berlin',r:'berlin',a:'Amsterdamer Str. 23, 13347 Berlin',t:'—',w:'farmbros.de',on:true,d:'Berlins bester Growshop. Seeds, Stecklinge, Growboxen. Blitzversand.',tags:['Seeds','Top-Shop']},
+  {n:'Kaya Foundation',c:'Berlin',r:'berlin',a:'Schliemannstr. 26, 10437 Berlin',t:'—',w:'—',on:false,d:'Prenzlauer Berg. Kompetente Beratung.',tags:['Beratung']},
+  {n:'Growtech Berlin',c:'Berlin',r:'berlin',a:'Bismarckstr. 102a, 10625 Berlin',t:'—',w:'—',on:false,d:'West-Berlin. LED und Klimatechnik.',tags:['LED']},
+  {n:'Greenlight GrowShop',c:'Birkenwerder',r:'berlin',a:'Bergfelder Str. 1, 16547 Birkenwerder',t:'—',w:'greenlight-shop.de',on:true,d:'AutoPot-Spezialist. Großes Sortiment.',tags:['AutoPot','BioBizz']},
+  {n:'Growland Hamburg',c:'Hamburg',r:'hamburg',a:'Hamburg',t:'040-73676191',w:'growland.net',on:true,d:'18+ Jahre. BioBizz & Sanlight-Spezialist.',tags:['BioBizz']},
+  {n:'Growmart Hamburg',c:'Hamburg',r:'hamburg',a:'Hamburg',t:'040-73676191',w:'growmart.de',on:true,d:'1.500+ Produkte. Mo–Fr 9–18 Uhr. Ab 100€ frei.',tags:['1500+ Produkte']},
+  {n:'PuraPlants',c:'Schenefeld',r:'hamburg',a:'Schenefeld bei Hamburg',t:'—',w:'—',on:true,d:'AutoPot, Blumat und BioTabs.',tags:['AutoPot']},
+  {n:'Hanf im Glück Schwabing',c:'München',r:'Bayern',a:'Georgenstraße 43, 80799 München',t:'—',w:'hanf-im-glueck.shop',on:true,d:'Premium Hanf-Kette. Mehrere Filialen.',tags:['Kette','München']},
+  {n:'Hanf im Glück Stachus',c:'München',r:'Bayern',a:'Karlsplatz 8, 80335 München',t:'—',w:'hanf-im-glueck.shop',on:true,d:'Zentral am Stachus.',tags:['Zentral']},
+  {n:'Sweet Naturals',c:'München',r:'Bayern',a:'Baron-Riederer-Str. 50a, 81739 München',t:'—',w:'sweet-naturals.de',on:true,d:'Online und vor Ort. Breites Sortiment.',tags:['Online']},
+  {n:'Riverside Grow Factory',c:'Augsburg',r:'Bayern',a:'Schankstr. 1, 86150 Augsburg',t:'—',w:'riverside-factory.de',on:true,d:'Etablierter Growshop in Augsburg.',tags:['Augsburg']},
+  {n:'Green-Liberty',c:'Frankfurt',r:'hessen',a:'Ostparkstraße 11, 60314 Frankfurt',t:'+49 69 36605010',w:'green-liberty.de',on:false,d:'Top-bewertet. Persönliche Beratung.',tags:['Top-Bewertet']},
+  {n:'Sheeva Grow & Headshop',c:'Frankfurt',r:'hessen',a:'Hellerhofstraße 23, 60327 Frankfurt',t:'+49 69 90738870',w:'sheeva-shop.de',on:false,d:"Mo–Fr 14–19. Barney's Farm Partner.",tags:["Barney's Farm"]},
+  {n:'Lichtblick Frankfurt',c:'Frankfurt',r:'hessen',a:'Heddernheimer Landstr. 10, 60439 FFM',t:'—',w:'lichtblick-frankfurt.de',on:true,d:'Indoor-Spezialist. 10.000+ Kunden.',tags:['Indoor']},
+  {n:'PLANTYME Hanau',c:'Hanau',r:'hessen',a:'Hanau, Hessen',t:'—',w:'plantyme.de',on:true,d:'300 qm XXL. CANNA Knowledge Center.',tags:['300qm','XXL']},
+  {n:'Heaven Hanau',c:'Hanau',r:'hessen',a:'Hanau, Hessen',t:'—',w:'heavenhanau.de',on:true,d:'Seit 2002. BioBizz, Canna.',tags:['Seit 2002']},
+  {n:'Urban Grow Düsseldorf',c:'Düsseldorf',r:'nrw',a:'Düsselthaler Str. 50, 40211 Düsseldorf',t:'—',w:'—',on:false,d:'Bester Growshop in Düsseldorf.',tags:['Düsseldorf']},
+  {n:'Greendog Grow & Headshop',c:'Köln',r:'nrw',a:'Subbelrather Str. 146, 50823 Köln',t:'—',w:'—',on:false,d:'Kölner Klassiker.',tags:['Köln']},
+  {n:'GBK-Shop',c:'Lüdinghausen',r:'nrw',a:'Lüdinghausen, NRW',t:'—',w:'gbk-shop.de',on:true,d:'Online-Marktführer + Showroom.',tags:['Pro-Setup']},
+  {n:'Green Galaxy Dortmund',c:'Dortmund',r:'nrw',a:'Ringofenstr. 37, 44287 Dortmund',t:'—',w:'—',on:false,d:'Dortmunder Growshop. Canna, BioBizz.',tags:['Dortmund']},
+  {n:'Grow Stuttgart',c:'Stuttgart',r:'bw',a:'Unterländer Str. 71, 70435 Stuttgart',t:'—',w:'—',on:false,d:'Indoor und Outdoor. Canna und BioBizz.',tags:['Stuttgart']},
+  {n:'Growbird Freiburg',c:'Freiburg',r:'bw',a:'Landgrafenstr. 2, 79108 Freiburg',t:'—',w:'growbird.de',on:true,d:'Freiburg + Online. Gut für Südwesten.',tags:['Freiburg']},
+  {n:'Dirks Growshop',c:'Online/DE',r:'bw',a:'Online, Deutschland',t:'—',w:'dirks-growshop.de',on:true,d:'DHV-Mitgründer. BioBizz komplett. Diskret.',tags:['DHV','Diskret']},
+  {n:'THC Shop Dresden',c:'Dresden',r:'sachsen',a:'Alaunstr. 43, 01099 Dresden',t:'—',w:'—',on:false,d:'Dresden-Neustadt.',tags:['Dresden']},
+  {n:'Kif-Kif Leipzig',c:'Leipzig',r:'sachsen',a:'Kurt-Schumacher-Str. 39, 04105 Leipzig',t:'—',w:'—',on:false,d:'Growshop in Leipzig.',tags:['Leipzig']},
+  {n:'Growmart Online',c:'Bundesweit',r:'online',a:'Online — Lager Hamburg',t:'040-73676191',w:'growmart.de',on:true,d:'Mo–Fr 9–18. Ab 100€ gratis. 1.500+.',tags:['Gratis ab 100€']},
+  {n:'Grow-Shop24',c:'Bundesweit',r:'online',a:'Online',t:'—',w:'grow-shop24.de',on:true,d:'Günstig, schnell, diskret.',tags:['Günstig']},
+  {n:'GBK-Shop Online',c:'Bundesweit',r:'online',a:'Online + Showroom Lüdinghausen',t:'—',w:'gbk-shop.de',on:true,d:'Pro-Setup-Planung.',tags:['Pro']},
+  {n:'DAFAMA BioInnovations',c:'Bundesweit',r:'online',a:'Online',t:'—',w:'—',on:true,d:'Nachhaltiger Bio-Growshop.',tags:['Bio']},
+  {n:'EUGardencenter',c:'Niederlande',r:'world',a:'Niederlande',t:'—',w:'eugardencenter.com',on:true,d:"Europas größter Garden-Center.",tags:['Europas größter']},
+  {n:'Grow-Dutch',c:'Niederlande',r:'world',a:'Niederlande',t:'—',w:'grow-dutch.com',on:true,d:'Holländischer Online-Growshop.',tags:['Holland']},
+  {n:'Dutch Headshop',c:'Amsterdam',r:'world',a:'Amsterdam',t:'—',w:'dutch-headshop.eu',on:true,d:'Amsterdamer Head- & Growshop.',tags:['Amsterdam']},
+  {n:'La Huerta Growshop',c:'Spanien',r:'world',a:'Spanien',t:'—',w:'lahuertagrowshop.com',on:true,d:'Riesiger Samen-Katalog aus Spanien.',tags:['Spanien']},
+  {n:'Cannapot',c:'Österreich',r:'world',a:'Österreich',t:'—',w:'cannapot.com',on:true,d:'Seit 2004. 1.000+ Sorten.',tags:['Seit 2004']},
+  {n:'Seedsman',c:'International',r:'world',a:'International',t:'—',w:'seedsman.com',on:true,d:'3.000+ Sorten. Weltweiter Versand.',tags:['3000 Sorten']},
+  {n:'Happy Holland',c:'Niederlande',r:'world',a:'Niederlande',t:'—',w:'happy-holland.com',on:true,d:'Cannabis Seeds + Nährstoffe aus Holland.',tags:['Holland']},
+  {n:'North Atlantic Seed Co.',c:'USA',r:'world',a:'USA',t:'—',w:'northatlanticseed.com',on:true,d:'Großer US-Seedshop. Mephisto, Humboldt.',tags:['USA','US-Breeders']},
+];
+function renderShops(){
+  const q=S.shopQ.toLowerCase(),r=S.shopR;
+  const fil=SHOPS.filter(s=>(r==='alle'||s.r===r)&&(!q||s.n.toLowerCase().includes(q)||s.c.toLowerCase().includes(q)));
+  const ce=document.getElementById('shCount');if(ce)ce.innerHTML=`<strong>${fil.length}</strong> Growshops`;
+  const grid=document.getElementById('shGrid');if(!grid)return;
+  if(!fil.length){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:4rem 0;color:var(--t3);"><div style="font-size:3rem;margin-bottom:.75rem;">🗺️</div><p>Keine Shops gefunden.</p></div>`;return;}
+  const rc={berlin:'#38bdf8',hamburg:'#4ade80',Bayern:'#fbbf24',hessen:'#f472b6',nrw:'#fb923c',bw:'#a855f7',sachsen:'#e879f9',online:'#9b51e0',world:'#00ffcc'};
+  grid.innerHTML=fil.map(s=>{const c=rc[s.r]||'#6b7280';return `<article class="sh" style="border-left:4px solid ${c};">
+    <div class="sh-top"><div><div class="sh-nm">${s.n}</div><div class="sh-ct">📍 ${s.c}</div></div>${s.w&&s.w!=='—'?`<a href="https://${s.w}" target="_blank" rel="noopener noreferrer" class="sh-wb" style="background:${c}14;border:1.5px solid ${c}44;color:${c};">🌐 Web</a>`:''}</div>
+    ${s.a&&s.a!=='—'?`<div style="font-size:.73rem;color:var(--t3);">📍 ${s.a}</div>`:''}
+    ${s.t&&s.t!=='—'?`<div style="font-size:.73rem;"><a href="tel:${s.t.replace(/\s/g,'')}" style="color:var(--t2);">📞 ${s.t}</a></div>`:''}
+    <div class="sh-desc" style="background:${c}07;border:1px solid ${c}22;">${s.d}</div>
+    <div class="sh-tags">${s.on?'<span class="sh-on">Online bestellbar</span>':''}${(s.tags||[]).map(tg=>`<span class="sh-tag">${tg}</span>`).join('')}</div>
+  </article>`;}).join('');
+}
+/* ══ SEEDS ══ */
+const SEEDBANKS=[
+  {n:'Royal Queen Seeds',c:'🇳🇱 NL',f:'2007',w:'royalqueenseeds.com',ac:'#a855f7',badge:'ANFÄNGER-FREUNDLICH',sts:['Northern Lights','Gelato','Royal Gorilla','Runtz','White Widow'],desc:'Seed Bank of the Year 2023. 100+ Sorten. Europäischer Marktführer.',str:'Zuverlässige Genetik. Überall erhältlich.',fw:'Einsteiger & sichere Ergebnisse'},
+  {n:"Barney's Farm",c:'🇳🇱 Amsterdam',f:'1992',w:'barneysfarm.com',ac:'#fb923c',badge:'HIGH POTENCY',sts:['Wedding Cake','Runtz Muffin','LSD','Tangerine Dream'],desc:'Amsterdamer Legende. Bis 29% THC. Vielfacher Cup-Gewinner.',str:'Extreme Potenz. Maximaler Ertrag.',fw:'Erfahrene Grower'},
+  {n:'Sensi Seeds',c:'🇳🇱 Amsterdam',f:'1985',w:'sensiseeds.com',ac:'#fbbf24',badge:'ÄLTESTE BANK WELTWEIT',sts:['Northern Lights #5','Jack Herer','Super Skunk','Hindu Kush'],desc:'Die älteste Samenbank der Welt. 35+ Jahre. High Times Hall of Fame.',str:'Legendäre Stabilität.',fw:'Alle die Klassiker suchen'},
+  {n:'Dutch Passion',c:'🇳🇱 Amsterdam',f:'1987',w:'dutch-passion.com',ac:'#38bdf8',badge:'FEMINISIERUNGS-PIONIER',sts:['Auto Ultimate','Orange Bud','Blueberry','Power Plant'],desc:'Erfinder der feminisierten & Auto-Samen. Planbar, stabil.',str:'Planbarkeit & Konsistenz.',fw:'Verlässliche Ergebnisse'},
+  {n:'Sweet Seeds',c:'🇪🇸 Spanien',f:'2005',w:'sweetseeds.com',ac:'#4ade80',badge:'TERPENE-CHAMPIONS',sts:['Red Hot Cookies Auto','Cream Mandarine XL','Crystal Candy'],desc:'Außergewöhnliche Terpene. Community-Liebling.',str:'Beste Aromen.',fw:'Intensivste Aromen'},
+  {n:'Fast Buds',c:'🇪🇸 Spanien',f:'2010',w:'2fast4buds.com',ac:'#34d399',badge:'SCHNELLSTE AUTOFLOWER',sts:['Gorilla Glue Auto','Wedding Cheesecake','Blue Dream Auto'],desc:'8–10 Wo Autoflower. US-Genetik als Auto.',str:'Kürzeste Grows.',fw:'US-Qualität schnell'},
+  {n:'Humboldt Seed Co.',c:'🇺🇸 Kalifornien',f:'2001',w:'humboldtseeds.net',ac:'#ec4899',badge:'US CALI ORIGINAL',sts:['Blue Dream','Blueberry Muffin','Pineapple Jellyfish'],desc:'20+ Jahre aus dem Emerald Triangle. Authentische Cali-Phänotypen.',str:'Echte US-Cali-Genetik.',fw:'Erfahrene US-Genetics-Sucher'},
+  {n:'Mephisto Genetics',c:'🇬🇧 UK',f:'2012',w:'—',ac:'#9b51e0',badge:'AUTO-PREMIUM',sts:['3 Bears OG Auto','Forum Stomper','Orange Drops'],desc:'Autoflower-Spezialist für Premium. Community-Liebling.',str:'Hochwertigste Autoflower.',fw:'Photoperiod-Qualität als Auto'},
+  {n:'Happy Seeds',c:'🇩🇪 Deutschland',f:'~2020',w:'happyseeds.wtf',ac:'#f472b6',badge:'CALI BOUTIQUE DE',sts:['Strawberry Marshmallow','Lemon Sherbet'],desc:'Deutsche Boutique-Bank. 29–35% THC. Einzelkörner.',str:'Direktkauf beim deutschen Züchter.',fw:'Exklusive Cali-Boutique-Genetik'},
+  {n:'DNA Genetics',c:'🇺🇸/🇳🇱',f:'2004',w:'dnagenetics.com',ac:'#f87171',badge:'CUPS ÜBER CUPS',sts:['Kosher Kush','Chocolope','Lemon Skunk'],desc:'Einzige Bank die JEDEN High Times Cup gewonnen hat.',str:'Meistausgezeichnet.',fw:'Preisgekrönte US-Genetik'},
+  {n:'Greenhouse Seeds',c:'🇳🇱 Amsterdam',f:'1995',w:'greenhouseseeds.nl',ac:'#a8ff3e',badge:'STRAIN HUNTERS',sts:['Super Silver Haze','Big Bang','Exodus Cheese'],desc:'Arjan Roskam. Strain Hunters reisen weltweit.',str:'Weltweite Landrace-Genetik.',fw:'Globale Vielfalt'},
+  {n:'Exotic Genetix',c:'🇺🇸 Washington',f:'~2013',w:'exoticgenetix.com',ac:'#7e57c2',badge:'ULTRA-PREMIUM US',sts:['Permanent Marker','Slurricane'],desc:'Boutique US-Bank. 28% THC.',str:'Exklusivste US-Boutique.',fw:'Erfahrene Experten'},
+];
+const ONLINE_SHOPS=[
+  {n:'Cannapot',w:'cannapot.com',ac:'#a855f7',l:'🇦🇹 Österreich',d:'Seit 2004. 1.000+ Sorten. EU-diskret.'},
+  {n:'SamenDE',w:'samende.de',ac:'#4ade80',l:'🇩🇪 Deutschland',d:'Seit 2024. RQS, Barney\'s, Sensi, Dutch Passion. DE-Versand.'},
+  {n:'Paddyseeds',w:'paddyseeds.de',ac:'#fb923c',l:'🇩🇪/🇦🇹',d:'8+ Jahre. Gratis-Samen zu jeder Bestellung.'},
+  {n:'Zamnesia',w:'zamnesia.com',ac:'#38bdf8',l:'🇳🇱 Niederlande',d:'Seeds + Headshop. Alle Top-Banken. EU-Versand.'},
+  {n:'Cannoptikum',w:'cannoptikum.com',ac:'#fbbf24',l:'🇩🇪 Deutschland',d:'8.500+ Sendungen. 2–4 Tage EU. Deutsch.'},
+  {n:'Seedsman',w:'seedsman.com',ac:'#ef5350',l:'🌍 International',d:'3.000+ Sorten. Weltweiter Versand.'},
+  {n:'PLANTYME',w:'plantyme.de',ac:'#34d399',l:'🇩🇪 Hanau',d:'DHL PostIdent. BioBizz + Samen unter einem Dach.'},
+  {n:'Sensible Seeds',w:'sensibleseeds.com',ac:'#f472b6',l:'🇬🇧 UK',d:'UK-Klassiker. Alle Top-Breeders.'},
+  {n:'OASeeds',w:'oaseeds.com',ac:'#c084fc',l:'🇪🇸 Spanien',d:'Sweet Seeds offiziell. Günstig.'},
+  {n:'Crazybud',w:'crazybud.eu',ac:'#818cf8',l:'🇩🇪 Deutschland',d:'Rechtssicher. Transparent. Deutsch.'},
+];
+function renderSeeds(){
+  const sbg=document.getElementById('sbGrid');
+  if(sbg)sbg.innerHTML=SEEDBANKS.map(sb=>`<article class="sbc" style="border-left:5px solid ${sb.ac};">
+    <div class="sbc-top">
+      <div><div class="sb-nm">${sb.n}</div><div class="sb-mt">${sb.c} · Seit ${sb.f}</div><div style="margin-top:.45rem;"><span class="pill pill-sm" style="color:${sb.ac};border-color:${sb.ac}44;background:${sb.ac}14;">${sb.badge}</span></div></div>
+      ${sb.w&&sb.w!=='—'?`<a href="https://${sb.w}" target="_blank" rel="noopener noreferrer" class="sb-lnk" style="background:${sb.ac}14;border:1.5px solid ${sb.ac}44;color:${sb.ac};">🌐 Shop</a>`:''}
+    </div>
+    <p class="sb-desc">${sb.desc}</p>
+    <div><div style="font-family:var(--fm);font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--t3);margin-bottom:.45rem;">Bekannte Sorten</div>
+    <div class="sb-sts">${sb.sts.map((s,i)=>`<span class="sb-st${i===0?' hl':''}" style="${i===0?`background:${sb.ac}18;border-color:${sb.ac}44;color:var(--t);`:''}">${s}</span>`).join('')}</div></div>
+    <div class="sb-info">
+      <div class="sb-ic" style="background:${sb.ac}08;border:1px solid ${sb.ac}22;"><div class="sb-icl" style="color:${sb.ac};">Stärke</div><div class="sb-icv">${sb.str}</div></div>
+      <div class="sb-ic" style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.05);"><div class="sb-icl" style="color:var(--t3);">Für wen?</div><div class="sb-icv">${sb.fw}</div></div>
+    </div>
+  </article>`).join('');
+  const osl=document.getElementById('osList');
+  if(osl)osl.innerHTML=ONLINE_SHOPS.map(s=>`<article class="osc" style="border-left:4px solid ${s.ac};">
+    <div class="osc-m"><div class="osc-nm">${s.n}</div><div class="osc-ld">${s.l}</div><div class="osc-d">${s.d}</div></div>
+    ${s.w&&s.w!=='—'?`<a href="https://${s.w}" target="_blank" rel="noopener noreferrer" class="osc-btn" style="background:${s.ac}14;border:1.5px solid ${s.ac}44;color:${s.ac};">🌐 Shop</a>`:''}
+  </article>`).join('');
+}
+/* ══ TECHNIKEN ══ */
+const TECHS=[
+  {id:'lst',n:'LST',sb:'Low Stress Training',ico:'🔗',ac:'#4ade80',w:'Ab Woche 3 — Photo & Auto',
+   why:'Flacher Baldachin. Alle Bud-Sites erhalten gleichviel Licht. Direkt mehr Ertrag und Bud-Dichte.',
+   img:'https://paradise-seeds.com/wp-content/uploads/2019/06/cannabis-training-LST-1024x562.jpg',
+   steps:['Weiches Garn oder Clips vorbereiten. Kein Metallblumendraht direkt am Stamm.','Haupttrieb sanft zur Seite biegen — Winkel unter 90°, nie reißen.','Trieb am Topfrand oder Bambusstock fixieren.','Täglich prüfen: neue Triebe nach oben biegen (5 cm+).','Ziel: alle Triebspitzen auf exakt gleicher Höhe.'],
+   tip:'💡 Morgens biegen — Pflanzen nach Bewässerung biegsamer.',yt:'cannabis LST low stress training tutorial deutsch'},
+  {id:'top',n:'Topping',sb:'Haupttrieb köpfen',ico:'✂️',ac:'#ff1a3a',w:'Ab Node 5 — NUR Veg — NUR Photoperiod',
+   why:'Bricht apikale Dominanz. Zwei gleichstarke Colas. Double Topping → 4 Colas. Deutlich mehr Ertrag.',
+   img:'https://paradise-seeds.com/wp-content/uploads/2022/05/topping-fimming-cannabis-plants.jpg',
+   steps:['Schere mit Isopropanol 99% sterilisieren.','Ab 5 vollständigen Nodes warten.','Oberstes Internodium direkt über Node 5 abschneiden.','2–4 Tage Erholung. Kein weiterer Stress.','Beide Triebe per LST weitertrainieren.'],
+   tip:'💡 Double Topping: nach 2 Wochen erneut toppen → 4 gleichstarke Colas.',yt:'cannabis topping tutorial deutsch'},
+  {id:'lollipop',n:'Lollipopping',sb:'Unteräste entfernen',ico:'🍭',ac:'#c084fc',w:'1 Woche vor Flip — einmalig',
+   why:'100% der Energie in Top-Buds. Untere Popcorn-Buds verschwenden Ressourcen. Verbessert Luftzirkulation.',
+   img:'https://www.growdiaries.com/static/img/post/c-lollipopping/lollipopping-cannabis.jpg',
+   steps:['Sterile Schere vorbereiten.','Alles unterhalb ⅓ der Höhe identifizieren.','Äste am Stamm mit 45°-Schnitt entfernen.','Max. 30% der Masse auf einmal.','2–3 Tage Ruhe, dann Flip.'],
+   tip:'💡 Schnittstellen mit Zimt bestäuben — natürliche Desinfektion.',yt:'cannabis lollipopping tutorial deutsch'},
+  {id:'defo',n:'Defoliierung',sb:'Blätter gezielt entfernen',ico:'🍃',ac:'#34d399',w:'Blüte Woche 1 · optional Woche 3',
+   why:'Licht erreicht alle Bud-Sites. Luftzirkulation verbessert sich. Botrytis-Risiko sinkt.',
+   img:'https://www.growdiaries.com/static/img/post/c-defoliation/defoliation-cannabis-main.jpg',
+   steps:['Nur große Fan-Blätter die Buds beschatten entfernen.','Niemals alle Blätter — Pflanze braucht Photosynthese.','Max. 20–30% in einem Durchgang.','Zweite Runde frühestens 3 Wochen später.','Ab Reifung: nichts mehr entfernen.'],
+   tip:'💡 Lieber zu wenig — Stress reduziert Terpene.',yt:'cannabis defoliierung tutorial deutsch'},
+  {id:'scrog',n:'SCROG',sb:'Screen of Green',ico:'🕸️',ac:'#00ffcc',w:'Netz ab Veg Woche 3–4',
+   why:'Maximale Lichtausnutzung. Im 60×60 Zelt die effektivste Methode für große Erträge.',
+   img:'https://www.royalqueenseeds.com/img/cms/scrog-cannabis.jpg',
+   steps:['10×10 cm Netz auf 35cm Höhe spannen.','Triebe durch Maschen flechten wenn sie die Netzebene erreichen.','Alle Triebe auf gleiche Höhe bringen.','Netz zu 80–90% bedeckt vor dem Flip.','Stretch-Triebe erste 2–3 Blütewochen weiter einflechten.'],
+   tip:'💡 55×55 cm Netz selbst bauen — billiger und anpassbarer.',yt:'cannabis SCROG screen of green tutorial deutsch'},
+  {id:'super',n:'Supercropping',sb:'Hochstress-Biegen',ico:'💪',ac:'#ffd700',w:'Nur Veg oder erste 2 Blütewochen',
+   why:'Xylem brechen → Knotengewebe = dickerer Stängel. Erhöht nachweislich Harz- und Terpenproduktion.',
+   img:'https://www.growweedeasy.com/wp-content/uploads/2015/06/supercropping-step-3.jpg',
+   steps:['Nur bei gesunden prallen Trieben anwenden.','Trieb zwischen Daumen und Zeigefinger sanft quetschen.','Langsam auf 90° biegen — nicht reißen.','Mit Garn oder Kabelbinder stützen.','Nach 3–5 Tagen bildet sich ein Knoten.'],
+   tip:'💡 Supercropping erhöht nachweislich Harz- und Terpenproduktion.',yt:'cannabis supercropping tutorial deutsch'},
+  {id:'main',n:'Main-Lining',sb:'Manifold-Methode',ico:'🌿',ac:'#fb923c',w:'Veg Woche 3–5 — NUR Photoperiod',
+   why:'Symmetrische Struktur mit N Colas. Jede Cola erhält exakt gleich Nährstoffe. Maximale Gleichmäßigkeit.',
+   img:'https://www.royalqueenseeds.com/img/cms/mainlining-cannabis.jpg',
+   steps:['Beim 3. Node toppen. Alles darunter entfernen.','Zwei Triebe in entgegengesetzte Richtungen per LST.','Beim neuen 3. Node erneut toppen.','Wiederholen bis 8 oder 16 Colas.','Alle Colas auf exakt gleicher Höhe halten.'],
+   tip:'💡 Main-Lining: 2–4 Wochen extra Veg — dafür perfekte Gleichmäßigkeit.',yt:'cannabis main lining manifold tutorial deutsch'},
+];
+function renderTech(){
+  const list=document.getElementById('techList');if(!list)return;
+  list.innerHTML=TECHS.map(tech=>`<article class="ti" id="t-${tech.id}">
+    <button class="ti-btn" aria-expanded="false" aria-controls="tb-${tech.id}" style="border-left:5px solid ${tech.ac};">
+      <div class="ti-ico" style="background:${tech.ac}14;border:2px solid ${tech.ac}44;">${tech.ico}</div>
+      <div class="ti-main">
+        <div class="ti-nm">${tech.n}</div><div class="ti-sb">${tech.sb}</div>
+        <span class="pill pill-sm" style="color:${tech.ac};border-color:${tech.ac}44;background:${tech.ac}14;">⏰ ${tech.w}</span>
+      </div>
+      <div class="ti-chev" aria-hidden="true">↓</div>
+    </button>
+    <div class="ti-body" id="tb-${tech.id}" role="region">
+      <img class="ti-img" src="${tech.img}" alt="${tech.n}" loading="lazy" onerror="this.style.display='none'">
+      <div style="font-family:var(--fm);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--t3);margin-bottom:.65rem;">Warum?</div>
+      <div style="font-size:.87rem;line-height:1.7;color:var(--t2);padding:.88rem 1rem;border-radius:7px;background:${tech.ac}08;border:1px solid ${tech.ac}28;margin-bottom:1.1rem;">${tech.why}</div>
+      <div style="font-family:var(--fm);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--t3);margin-bottom:.8rem;">Schritt für Schritt</div>
+      <div>${tech.steps.map((s,i)=>`<div class="ti-step"><div class="snum" style="background:${tech.ac}18;border:2px solid ${tech.ac}55;color:${tech.ac};">${i+1}</div><p>${s}</p></div>`).join('')}</div>
+      <div class="ti-tip" style="border-color:${tech.ac};background:${tech.ac}06;margin-top:.5rem;">${tech.tip}</div>
+      <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(tech.yt)}" target="_blank" rel="noopener noreferrer" class="ytbtn">▶ YouTube-Tutorial: ${tech.n}</a>
+    </div>
+  </article>`).join('');
+  list.querySelectorAll('.ti-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const item=btn.closest('.ti');
+      list.querySelectorAll('.ti').forEach(o=>{if(o!==item){o.classList.remove('open');o.querySelector('.ti-btn').setAttribute('aria-expanded','false');}});
+      const o=item.classList.toggle('open');btn.setAttribute('aria-expanded',o);
+      if(o)setTimeout(()=>item.scrollIntoView({behavior:'smooth',block:'nearest'}),55);
+    });
+  });
+}
+/* ══ COMMUNITY CHAT ══ */
+const Chat={
+  open:false,
+  userName:localStorage.getItem('gk_name')||null,
+  msgs:[
+    {u:'System',tm:null,txt:'🌿 Willkommen im GrowLab Community Chat! Stelle Fragen oder teile Ergebnisse.',sys:true},
+    {u:'GreenThumb420',tm:'14:23',txt:'Wer hat Erfahrung mit Strawberry Marshmallow? Erste Blütewoche.',own:false},
+    {u:'NeonGrower_DE',tm:'14:25',txt:'Hab die gerade in Woche 7! Lila-Färbung ist krass wenn du die Nacht auf 12°C bringst 🔥',own:false},
+    {u:'BioKing_FFM',tm:'14:28',txt:'BioBizz Light-Mix dazu empfehle ich. Läuft perfekt mit dem Wochenplan hier 💚',own:false},
+    {u:'AutoQueen',tm:'14:31',txt:'Nutzt hier jemand Fabric Pots? Meine GG Auto hat damit deutlich größere Roots!',own:false},
+  ],
+  bots:[
+    'Den Growplan dafür findest du direkt im Konfigurator! 💚',
+    'Ich hab gute Erfahrungen damit! Wichtig: nicht zu früh ernten 🌱',
+    'Terpinator in Blüte Woche 3 macht einen riesigen Unterschied! 🔥',
+    'Bei 60×60 Zelt würde ich LST + Lollipopping empfehlen. Beste Combo 👍',
+    'Wie viele Wochen bist du schon in der Blüte? 🌸',
+    'Die Nacht auf 12°C in der letzten Phase macht die Buds wirklich lila! 💜',
+  ],
+  onlineNames:['GreenThumb420','NeonGrower_DE','BioKing_FFM','AutoQueen','TerpKing'],
+};
+function initChat(){
+  const opnBtn=document.getElementById('chatOpn'),win=document.getElementById('chatWin'),cls=document.getElementById('chatCls'),send=document.getElementById('csend'),input=document.getElementById('cinput'),msgs=document.getElementById('chatMsgs'),nModal=document.getElementById('cnameModal'),nInput=document.getElementById('cname'),nBtn=document.getElementById('cnameBtn'),notif=document.getElementById('chatN'),typ=document.getElementById('chatTyp'),olEl=document.getElementById('chatOnline');
+  if(!opnBtn||!win)return;
+  function renderMsgs(){
+    if(!msgs)return;
+    msgs.innerHTML=Chat.msgs.map(m=>{
+      if(m.sys)return `<div class="msg sys"><div class="msg-hd"><span class="msg-usr" style="color:var(--g);">🌿 System</span></div><div class="msg-bub">${m.txt}</div></div>`;
+      const isOwn=Chat.userName&&m.u===Chat.userName;
+      return `<div class="msg${isOwn?' own':''}"><div class="msg-hd"><span class="msg-usr" style="color:${isOwn?'var(--r)':'var(--tl)'};">${m.u}</span><span class="msg-tm">${m.tm||''}</span></div><div class="msg-bub">${m.txt}</div></div>`;
+    }).join('');
+    msgs.scrollTop=msgs.scrollHeight;
+  }
+  function sendMsg(text){
+    if(!text.trim()||!Chat.userName)return;
+    const now=new Date();const tm=now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
+    Chat.msgs.push({u:Chat.userName,tm,txt:text.trim(),own:true});
+    renderMsgs();
+    if(input)input.value='';
+    // Random bot response
+    setTimeout(()=>{
+      const typdots=[{c:'⏳'},{c:'⏳'},{c:'⏳'}];
+      if(typ){typ.innerHTML='<span class="tdot"></span><span class="tdot"></span><span class="tdot"></span> '+Chat.onlineNames[Math.floor(Math.random()*Chat.onlineNames.length)]+' schreibt...';}
+      setTimeout(()=>{
+        if(typ)typ.innerHTML='';
+        const bot=Chat.bots[Math.floor(Math.random()*Chat.bots.length)];
+        const botName=Chat.onlineNames[Math.floor(Math.random()*Chat.onlineNames.length)];
+        const now2=new Date();const tm2=now2.getHours()+':'+String(now2.getMinutes()).padStart(2,'0');
+        Chat.msgs.push({u:botName,tm:tm2,txt:bot,own:false});
+        renderMsgs();
+      },1200+Math.random()*1500);
+    },300);
+  }
+  opnBtn.addEventListener('click',()=>{
+    Chat.open=!Chat.open;
+    win.classList.toggle('open',Chat.open);
+    opnBtn.setAttribute('aria-expanded',Chat.open);
+    if(notif)notif.style.display='none';
+    if(Chat.open){renderMsgs();}
+  });
+  cls?.addEventListener('click',()=>{Chat.open=false;win.classList.remove('open');opnBtn.setAttribute('aria-expanded','false');});
+  nBtn?.addEventListener('click',()=>{
+    const v=(nInput?.value||'').trim();
+    if(!v)return;
+    Chat.userName=v;localStorage.setItem('gk_name',v);
+    if(nModal)nModal.style.display='none';
+    Chat.msgs.push({u:'System',tm:null,txt:`🎉 ${v} ist dem Chat beigetreten!`,sys:true});
+    renderMsgs();
+  });
+  nInput?.addEventListener('keydown',e=>{if(e.key==='Enter')nBtn?.click();});
+  if(Chat.userName&&nModal)nModal.style.display='none';
+  send?.addEventListener('click',()=>{sendMsg(input?.value||'');});
+  input?.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg(input.value);}});
+  document.querySelectorAll('.cem').forEach(btn=>{btn.addEventListener('click',()=>{if(input)input.value+=(btn.dataset.e||'');input?.focus();});});
+  // Online count updates
+  setInterval(()=>{if(olEl){const n=3+Math.floor(Math.random()*8);olEl.textContent=n+' Grower online';}},15000);
+}
+/* ══ GLOBAL EVENTS ══ */
+function initEvents(){
+  // Navigation
+  document.addEventListener('click',e=>{
+    const pg=e.target.closest('[data-page]');if(pg){e.preventDefault();go(pg.dataset.page);}
+    const lng=e.target.closest('[data-lang]');if(lng){setLang(lng.dataset.lang);}
+  });
+  // Strain search
+  const ss=document.getElementById('strSrc'),sc=document.getElementById('strSrcX');
+  ss?.addEventListener('input',()=>{S.strQ=ss.value;sc?.classList.toggle('v',!!ss.value);if(S.page==='sorten')renderSorten();});
+  sc?.addEventListener('click',()=>{if(ss)ss.value='';S.strQ='';sc.classList.remove('v');renderSorten();ss?.focus();});
+  // Strain filters
+  document.querySelectorAll('#strFilters .fc').forEach(c=>{
+    c.addEventListener('click',()=>{S.strF=c.dataset.f;document.querySelectorAll('#strFilters .fc').forEach(x=>x.classList.remove('on'));c.classList.add('on');renderSorten();});
+  });
+  // Shop search
+  const hs=document.getElementById('shSrc'),hsc=document.getElementById('shSrcX');
+  hs?.addEventListener('input',()=>{S.shopQ=hs.value;hsc?.classList.toggle('v',!!hs.value);renderShops();});
+  hsc?.addEventListener('click',()=>{if(hs)hs.value='';S.shopQ='';hsc.classList.remove('v');renderShops();hs?.focus();});
+  // Region tabs
+  document.querySelectorAll('#rtabs .rtab').forEach(tab=>{tab.addEventListener('click',()=>{S.shopR=tab.dataset.r;document.querySelectorAll('#rtabs .rtab').forEach(t=>{t.classList.remove('on');t.setAttribute('aria-selected','false');});tab.classList.add('on');tab.setAttribute('aria-selected','true');renderShops();});});
+  // Seed tabs
+  document.querySelectorAll('.tbtn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.tbtn').forEach(t=>{t.classList.remove('on');t.setAttribute('aria-selected','false');});document.querySelectorAll('.tpanel').forEach(p=>p.classList.remove('on'));btn.classList.add('on');btn.setAttribute('aria-selected','true');document.getElementById('tbp-'+btn.dataset.tb)?.classList.add('on');});});
+}
+/* ══ BOOT ══ */
+document.addEventListener('DOMContentLoaded',()=>{
+  initMMenu();
+  initCfgEvents();
+  initEvents();
+  initChat();
+  updateCounts();
+  applyI18n();
+  const hash=location.hash.replace('#','');
+  if(hash&&document.getElementById('page-'+hash))go(hash,false);
+});
+</script>
+</body>
+</html>
+
